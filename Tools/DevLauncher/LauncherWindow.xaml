@@ -1,0 +1,133 @@
+<Window x:Class="TRIO2026.DevLauncher.LauncherWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TRIO2026 — 機台螢幕模擬器"
+        WindowStartupLocation="CenterScreen"
+        Background="#1A1F2E"
+        MinWidth="640" MinHeight="480"
+        ResizeMode="CanMinimize"
+        SizeToContent="WidthAndHeight"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 上方工具列 -->
+        <Border Grid.Row="0" Background="#252D3D" Padding="12,8">
+            <StackPanel>
+                <!-- 第一行：解析度 + 按鈕 -->
+                <DockPanel Margin="0,0,0,8">
+                    <!-- 右側按鈕 -->
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button x:Name="RunButton" Content="▶ 啟動" Click="Run_Click"
+                                Width="90" Height="34" FontSize="14" FontWeight="SemiBold"
+                                Foreground="White" Background="#388E3C" BorderThickness="0" Cursor="Hand"
+                                Margin="8,0,0,0" />
+                        <Button x:Name="StopButton" Content="■ 停止" Click="Stop_Click"
+                                Width="90" Height="34" FontSize="14" FontWeight="SemiBold"
+                                Foreground="White" Background="#D32F2F" BorderThickness="0" Cursor="Hand"
+                                Margin="8,0,0,0" IsEnabled="False" />
+                    </StackPanel>
+
+                    <!-- 左側解析度選擇 -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="📐 解析度:" Foreground="#B0BEC5" FontSize="13"
+                                   VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <ComboBox x:Name="ResolutionCombo" Width="260" Height="34" FontSize="13"
+                                  SelectionChanged="Resolution_Changed" VerticalContentAlignment="Center">
+                            <ComboBoxItem Content="600 × 960 — 機台 (200% DPI)" Tag="600,960" IsSelected="True" />
+                            <ComboBoxItem Content="1200 × 1920 — 機台原生 (100%)" Tag="1200,1920" />
+                            <ComboBoxItem Content="1920 × 1080 — Full HD 橫式" Tag="1920,1080" />
+                            <ComboBoxItem Content="1080 × 1920 — Full HD 直式" Tag="1080,1920" />
+                            <ComboBoxItem Content="800 × 1280 — 10吋直式" Tag="800,1280" />
+                        </ComboBox>
+
+                        <TextBlock Text="縮放:" Foreground="#78909C" FontSize="12"
+                                   VerticalAlignment="Center" Margin="16,0,6,0" />
+                        <TextBlock x:Name="ScaleText" Text="100%" Foreground="#42A5F5" FontSize="13"
+                                   FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- 第二行：螢幕面板尺寸（公分） -->
+                <DockPanel>
+                    <Button x:Name="ScreenshotButton" Content="📷 截圖" Click="Screenshot_Click"
+                            DockPanel.Dock="Right" Width="70" Height="28" FontSize="12"
+                            Foreground="White" Background="#546E7A" BorderThickness="0" Cursor="Hand"
+                            ToolTip="截圖存至 Screenshots 資料夾" />
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🖥️ 面板尺寸:" Foreground="#B0BEC5" FontSize="13"
+                                   VerticalAlignment="Center" Margin="0,0,8,0" />
+
+                        <TextBlock Text="寬" Foreground="#78909C" FontSize="12"
+                                   VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBox x:Name="PanelWidthBox" Text="9.5" Width="60" Height="28" FontSize="13"
+                                 Foreground="White" Background="#2A3A55" BorderBrush="#3D5577"
+                                 VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                                 TextChanged="PanelSize_Changed" />
+                        <TextBlock Text="cm" Foreground="#546E7A" FontSize="11"
+                                   VerticalAlignment="Center" Margin="3,0,12,0" />
+
+                        <TextBlock Text="×" Foreground="#78909C" FontSize="15"
+                                   VerticalAlignment="Center" Margin="0,0,12,0" />
+
+                        <TextBlock Text="高" Foreground="#78909C" FontSize="12"
+                                   VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBox x:Name="PanelHeightBox" Text="15.0" Width="60" Height="28" FontSize="13"
+                                 Foreground="White" Background="#2A3A55" BorderBrush="#3D5577"
+                                 VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                                 TextChanged="PanelSize_Changed" />
+                        <TextBlock Text="cm" Foreground="#546E7A" FontSize="11"
+                                   VerticalAlignment="Center" Margin="3,0,12,0" />
+
+                        <Button Content="套用" Click="ApplySize_Click"
+                                Width="60" Height="28" FontSize="12"
+                                Foreground="White" Background="#455A7A" BorderThickness="0" Cursor="Hand" />
+
+                        <TextBlock Text="(最小 9×9 cm)" Foreground="#455A64" FontSize="11"
+                                   VerticalAlignment="Center" Margin="12,0,0,0" />
+                    </StackPanel>
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- 模擬螢幕區域 -->
+        <Border Grid.Row="1" Background="#000000" Margin="0">
+            <Border x:Name="ScreenContainer"
+                    Background="#111827"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Grid>
+                    <!-- 未啟動時的提示 -->
+                    <Grid x:Name="PlaceholderGrid">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock Text="🖥️" FontSize="64" HorizontalAlignment="Center" Margin="0,0,0,12" />
+                            <TextBlock Text="TRIO2026 機台螢幕模擬器" FontSize="22" FontWeight="Bold"
+                                       Foreground="#546E7A" HorizontalAlignment="Center" Margin="0,0,0,8" />
+                            <TextBlock x:Name="SimResText" Text="模擬解析度: 1920 × 1200"
+                                       FontSize="14" Foreground="#37474F" HorizontalAlignment="Center" Margin="0,0,0,4" />
+                            <TextBlock Text="點擊「▶ 啟動」運行 TRIO2026.App"
+                                       FontSize="13" Foreground="#37474F" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 嵌入子視窗的 Win32 容器 (啟動後顯示) -->
+                    <WindowsFormsHost x:Name="WfHost" Visibility="Collapsed" />
+                </Grid>
+            </Border>
+        </Border>
+
+        <!-- 底部狀態列 -->
+        <Border Grid.Row="2" Background="#1E2533" Padding="12,6">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" x:Name="DevScreenInfo" Foreground="#546E7A" FontSize="11" />
+                <TextBlock x:Name="StatusText" Text="就緒" Foreground="#78909C" FontSize="11" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

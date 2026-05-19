@@ -1,0 +1,211 @@
+using TRIO2026.Core.Entities;
+
+namespace TRIO2026.Data.Seeding;
+
+/// <summary>
+/// 事件定義種子資料 — 預定義的系統事件代碼
+/// 
+/// 命名規則：
+///   INF-XNNN = Info（資訊事件）
+///   WRN-XNNN = Warning（警告事件）
+///   ERR-XNNN = Error / Fatal（錯誤/致命）
+///   X = 分類碼（1=System, 2=Auth, 3=UV, 4=Hardware, 5=Config, 6=Navigation）
+/// 
+/// 新增步驟：
+///   1. 在此檔案新增一筆 EventCodeDefinition
+///   2. 在 ErrorCodes.cs 新增對應常數
+///   3. 在 LocalizedStringSeed.cs 新增多語系字串（若有 UserMessageKey）
+///   4. 執行 DbInitializer 同步至 DB
+/// 
+/// 製作者: Office of William
+/// </summary>
+public static class EventCodeDefinitionSeed
+{
+    public static List<EventCodeDefinition> GetSeedData()
+    {
+        return new List<EventCodeDefinition>
+        {
+            // ══════════════════════════════════
+            // 1xxx — System 系統級
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 1, Code = "ERR-1001", Category = "System", Severity = "Fatal",
+                Title = "Unhandled Exception",
+                Description = "應用程式發生未捕獲的例外，可能導致功能異常",
+                Resolution = "重啟應用程式。若持續發生，請提供 Error ID 給技術支援",
+                UserMessageKey = "Error.ERR-1001",
+                UserMessageFallback = "An unexpected error occurred. Please restart the application."
+            },
+            new()
+            {
+                Id = 2, Code = "ERR-1002", Category = "System", Severity = "Error",
+                Title = "Database Connection Failure",
+                Description = "無法連線至 SQLite 資料庫檔案",
+                Resolution = "確認資料庫檔案未被鎖定或損壞，重啟應用程式",
+                UserMessageKey = "Error.ERR-1002",
+                UserMessageFallback = "Database connection failed. Please restart the application."
+            },
+            new()
+            {
+                Id = 3, Code = "WRN-1003", Category = "System", Severity = "Warning",
+                Title = "EventLog Write Failure",
+                Description = "事件日誌無法寫入 DB，已降級至 Dead Letter 檔案",
+                Resolution = "檢查磁碟空間與 system_event.db 檔案狀態",
+                UserMessageKey = "Error.WRN-1003",
+                UserMessageFallback = "Log write failed. The system will continue operating."
+            },
+            new()
+            {
+                Id = 4, Code = "INF-1004", Category = "System", Severity = "Info",
+                Title = "Application Startup",
+                Description = "應用程式正常啟動",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 5, Code = "INF-1005", Category = "System", Severity = "Info",
+                Title = "Application Shutdown",
+                Description = "應用程式正常關閉",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+
+            // ══════════════════════════════════
+            // 2xxx — Auth 認證相關
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 10, Code = "WRN-2001", Category = "Auth", Severity = "Warning",
+                Title = "Login Failed",
+                Description = "使用者登入失敗（密碼錯誤或帳號不存在）",
+                Resolution = "確認帳號密碼正確",
+                UserMessageKey = "Error.WRN-2001",
+                UserMessageFallback = "Login failed. Please check your credentials."
+            },
+            new()
+            {
+                Id = 11, Code = "INF-2002", Category = "Auth", Severity = "Info",
+                Title = "Login Success",
+                Description = "使用者成功登入",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 12, Code = "INF-2003", Category = "Auth", Severity = "Info",
+                Title = "User Logout",
+                Description = "使用者登出",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+
+            // ══════════════════════════════════
+            // 3xxx — UV 照射相關
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 20, Code = "INF-3001", Category = "UV", Severity = "Info",
+                Title = "UV Start",
+                Description = "UV 照射啟動",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 21, Code = "WRN-3002", Category = "UV", Severity = "Warning",
+                Title = "UV Stop",
+                Description = "UV 照射手動停止",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 22, Code = "INF-3003", Category = "UV", Severity = "Info",
+                Title = "UV Complete",
+                Description = "UV 照射倒數完成",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 23, Code = "WRN-3004", Category = "UV", Severity = "Warning",
+                Title = "UV Door Interrupted",
+                Description = "UV 照射期間門板被開啟，照射暫停",
+                Resolution = "關閉門板後照射將自動恢復",
+                UserMessageKey = "Error.WRN-3004",
+                UserMessageFallback = "Door opened during UV operation. Close the door to resume."
+            },
+            new()
+            {
+                Id = 24, Code = "ERR-3005", Category = "UV", Severity = "Error",
+                Title = "UV Lamp Failure",
+                Description = "UV 燈管啟動失敗",
+                Resolution = "檢查 UV 燈管硬體連線，若持續失敗請聯繫維護團隊",
+                UserMessageKey = "Error.ERR-3005",
+                UserMessageFallback = "UV lamp failed to start. Please contact maintenance."
+            },
+            new()
+            {
+                Id = 25, Code = "ERR-3006", Category = "UV", Severity = "Error",
+                Title = "UV Config Load Failure",
+                Description = "UV 時間選項從資料庫載入失敗",
+                Resolution = "執行 DbInitializer 重新初始化資料庫",
+                UserMessageKey = "Error.ERR-3006",
+                UserMessageFallback = "Failed to load UV configuration."
+            },
+
+            // ══════════════════════════════════
+            // 4xxx — Hardware 硬體相關
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 30, Code = "ERR-4001", Category = "Hardware", Severity = "Error",
+                Title = "Hardware Communication Failure",
+                Description = "與硬體裝置通訊失敗",
+                Resolution = "檢查硬體連線與通訊埠設定",
+                UserMessageKey = "Error.ERR-4001",
+                UserMessageFallback = "Hardware communication error. Check connections."
+            },
+
+            // ══════════════════════════════════
+            // 5xxx — Config 設定相關
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 40, Code = "WRN-5001", Category = "Config", Severity = "Warning",
+                Title = "Config Load Failure",
+                Description = "系統設定載入失敗，使用預設值",
+                Resolution = "檢查 system_config.db 是否正常",
+                UserMessageKey = "Error.WRN-5001",
+                UserMessageFallback = "Configuration load failed. Using defaults."
+            },
+
+            // ══════════════════════════════════
+            // 6xxx — Navigation 導航相關
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 50, Code = "INF-6001", Category = "Navigation", Severity = "Info",
+                Title = "Page Navigation",
+                Description = "頁面導航事件",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+
+            // ══════════════════════════════════
+            // 9xxx — Dynamic / Unknown（動態註冊保留區段）
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 90, Code = "ERR-9000", Category = "System", Severity = "Error",
+                Title = "Unknown Error",
+                Description = "未歸類的系統錯誤（動態註冊的錯誤將從 ERR-9001 開始）",
+                Resolution = "提供 Error ID 給技術支援人員",
+                UserMessageKey = "Error.ERR-9000",
+                UserMessageFallback = "An unknown error occurred. Please report the Error ID."
+            },
+        };
+    }
+}

@@ -1,0 +1,4 @@
+帳號			密碼				角色
+admin		Trio@2026		管理員 (Level 3)
+service		Service@240		Service 工程師 (Level 2)
+operator	Op@12345		操作員 (Level 1)

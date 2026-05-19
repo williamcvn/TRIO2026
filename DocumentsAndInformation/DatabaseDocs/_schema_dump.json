@@ -1,0 +1,1112 @@
+{
+  "trio240plus_config.db": {
+    "tables": {
+      "CommandDefinition": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "Name",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "Arg0Type",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "Arg0Label",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "Arg0Options",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "Arg1Type",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "Arg1Label",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 7,
+            "name": "Arg1Options",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 8,
+            "name": "Arg2Type",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          },
+          {
+            "cid": 9,
+            "name": "Arg2Label",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 10,
+            "name": "Arg2Options",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 11,
+            "name": "Arg3Type",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          },
+          {
+            "cid": 12,
+            "name": "Arg3Label",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 13,
+            "name": "Arg3Options",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 14,
+            "name": "Arg4Type",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          },
+          {
+            "cid": 15,
+            "name": "Arg4Label",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 16,
+            "name": "Arg4Options",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 17,
+            "name": "Note",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 18,
+            "name": "DisplayFormat",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [],
+        "foreign_keys": [],
+        "row_count": 29
+      },
+      "SystemConfig": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "Category",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "Key",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "Value",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "DataType",
+            "type": "TEXT",
+            "not_null": true,
+            "default": "'string'",
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "Description",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "ModifiedAt",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 7,
+            "name": "ModifiedBy",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_SystemConfig_Category_Key",
+            "unique": true,
+            "columns": [
+              "Category",
+              "Key"
+            ]
+          }
+        ],
+        "foreign_keys": [],
+        "row_count": 2497
+      }
+    },
+    "journal_mode": "wal",
+    "foreign_keys_enabled": 0
+  },
+  "trio240plus_data.db": {
+    "tables": {
+      "ReportSnapshot": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "TestRecordId",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "ReportType",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "GeneratedAt",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "ContentJson",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "PdfBlob",
+            "type": "BLOB",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_ReportSnapshot_TestRecordId",
+            "unique": false,
+            "columns": [
+              "TestRecordId"
+            ]
+          }
+        ],
+        "foreign_keys": [
+          {
+            "from": "TestRecordId",
+            "to_table": "TestRecord",
+            "to_column": "Id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION"
+          }
+        ],
+        "row_count": 0
+      },
+      "SampleResult": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "TestRecordId",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "SampleBarcode",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "SamplePosition",
+            "type": "INTEGER",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "Concentration",
+            "type": "REAL",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "Volume",
+            "type": "REAL",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "QualityFlag",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 7,
+            "name": "RawDataJson",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 8,
+            "name": "CreatedAt",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_SampleResult_TestRecordId",
+            "unique": false,
+            "columns": [
+              "TestRecordId"
+            ]
+          }
+        ],
+        "foreign_keys": [
+          {
+            "from": "TestRecordId",
+            "to_table": "TestRecord",
+            "to_column": "Id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION"
+          }
+        ],
+        "row_count": 0
+      },
+      "TestRecord": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "RunId",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "FlowName",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "ProductCode",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "OperatorName",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "SampleCount",
+            "type": "INTEGER",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "StartTime",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 7,
+            "name": "EndTime",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 8,
+            "name": "Status",
+            "type": "TEXT",
+            "not_null": true,
+            "default": "'Running'",
+            "pk": false
+          },
+          {
+            "cid": 9,
+            "name": "ErrorCode",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 10,
+            "name": "ErrorMessage",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_TestRecord_RunId",
+            "unique": true,
+            "columns": [
+              "RunId"
+            ]
+          }
+        ],
+        "foreign_keys": [],
+        "row_count": 0
+      }
+    },
+    "journal_mode": "wal",
+    "foreign_keys_enabled": 0
+  },
+  "trio240plus_log.db": {
+    "tables": {
+      "CommunicationLog": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "Timestamp",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "Direction",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "FunctionCode",
+            "type": "INTEGER",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "Address",
+            "type": "INTEGER",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "DataHex",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "IsError",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_CommunicationLog_Timestamp",
+            "unique": false,
+            "columns": [
+              "Timestamp"
+            ]
+          }
+        ],
+        "foreign_keys": [],
+        "row_count": 0
+      },
+      "OperationLog": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "Timestamp",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "Level",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "Category",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "UserName",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "Action",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "Detail",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_OperationLog_Timestamp",
+            "unique": false,
+            "columns": [
+              "Timestamp"
+            ]
+          },
+          {
+            "name": "IX_OperationLog_Category_Level",
+            "unique": false,
+            "columns": [
+              "Category",
+              "Level"
+            ]
+          }
+        ],
+        "foreign_keys": [],
+        "row_count": 0
+      }
+    },
+    "journal_mode": "wal",
+    "foreign_keys_enabled": 0
+  },
+  "trio240plus_main.db": {
+    "tables": {
+      "FlowDefinition": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "FlowName",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "Description",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "TotalSteps",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "Version",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "SampleType",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "IsActive",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "1",
+            "pk": false
+          },
+          {
+            "cid": 7,
+            "name": "CreatedAt",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 8,
+            "name": "ModifiedAt",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 9,
+            "name": "ModifiedBy",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_FlowDefinition_FlowName",
+            "unique": true,
+            "columns": [
+              "FlowName"
+            ]
+          }
+        ],
+        "foreign_keys": [],
+        "row_count": 10
+      },
+      "FlowMapping": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": false,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "FlowCode",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "BuiltInFlowName",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "ElutionVolume",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "LoadingVolume",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "SampleType",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "ConsumableLayoutCode",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 7,
+            "name": "ExtractionTime",
+            "type": "INTEGER",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_FlowMapping_FlowCode",
+            "unique": true,
+            "columns": [
+              "FlowCode"
+            ]
+          }
+        ],
+        "foreign_keys": [],
+        "row_count": 22
+      },
+      "FlowStep": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "FlowDefinitionId",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "StepOrder",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "CommandId",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "Crc",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "Arg0",
+            "type": "REAL",
+            "not_null": true,
+            "default": "0.0",
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "Arg1",
+            "type": "REAL",
+            "not_null": true,
+            "default": "0.0",
+            "pk": false
+          },
+          {
+            "cid": 7,
+            "name": "Arg2",
+            "type": "REAL",
+            "not_null": true,
+            "default": "0.0",
+            "pk": false
+          },
+          {
+            "cid": 8,
+            "name": "Arg3",
+            "type": "REAL",
+            "not_null": true,
+            "default": "0.0",
+            "pk": false
+          },
+          {
+            "cid": 9,
+            "name": "Arg4",
+            "type": "REAL",
+            "not_null": true,
+            "default": "0.0",
+            "pk": false
+          },
+          {
+            "cid": 10,
+            "name": "StringArg",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 11,
+            "name": "GroupName",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 12,
+            "name": "GroupDepth",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "0",
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_FlowStep_FlowDefinitionId_StepOrder",
+            "unique": false,
+            "columns": [
+              "FlowDefinitionId",
+              "StepOrder"
+            ]
+          }
+        ],
+        "foreign_keys": [
+          {
+            "from": "FlowDefinitionId",
+            "to_table": "FlowDefinition",
+            "to_column": "Id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION"
+          }
+        ],
+        "row_count": 2091
+      },
+      "PnidMapping": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "PnidCode",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "DescriptionEn",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "DescriptionZh",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "LinkedProductCode",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_PnidMapping_PnidCode",
+            "unique": true,
+            "columns": [
+              "PnidCode"
+            ]
+          }
+        ],
+        "foreign_keys": [],
+        "row_count": 24
+      },
+      "UserAccount": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "Id",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": null,
+            "pk": true
+          },
+          {
+            "cid": 1,
+            "name": "Username",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 2,
+            "name": "PasswordHash",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 3,
+            "name": "RoleLevel",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "1",
+            "pk": false
+          },
+          {
+            "cid": 4,
+            "name": "IsActive",
+            "type": "INTEGER",
+            "not_null": true,
+            "default": "1",
+            "pk": false
+          },
+          {
+            "cid": 5,
+            "name": "CreatedAt",
+            "type": "TEXT",
+            "not_null": true,
+            "default": null,
+            "pk": false
+          },
+          {
+            "cid": 6,
+            "name": "LastLoginAt",
+            "type": "TEXT",
+            "not_null": false,
+            "default": null,
+            "pk": false
+          }
+        ],
+        "indexes": [
+          {
+            "name": "IX_UserAccount_Username",
+            "unique": true,
+            "columns": [
+              "Username"
+            ]
+          }
+        ],
+        "foreign_keys": [],
+        "row_count": 3
+      }
+    },
+    "journal_mode": "wal",
+    "foreign_keys_enabled": 0
+  }
+}
