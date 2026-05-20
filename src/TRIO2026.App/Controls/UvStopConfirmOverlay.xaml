@@ -44,14 +44,14 @@
 
                 <!-- Information 標題 -->
                 <TextBlock Text="{Binding [UV.StopConfirmTitle], Source={x:Static svc:LocalizationService.Instance}}"
-                           FontSize="20" FontWeight="SemiBold"
+                           FontSize="22" FontWeight="SemiBold"
                            Foreground="White"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,20"/>
 
                 <!-- 紅色警告文字 -->
                 <TextBlock Text="{Binding [UV.StopConfirmMessage], Source={x:Static svc:LocalizationService.Instance}}"
-                           FontSize="14" FontWeight="Normal"
+                           FontSize="18" FontWeight="Normal"
                            Foreground="#EF5350"
                            HorizontalAlignment="Center"
                            TextWrapping="Wrap"
@@ -65,8 +65,8 @@
                     <Button x:Name="NoButton"
                             Content="{Binding [Common.No], Source={x:Static svc:LocalizationService.Instance}}"
                             Click="NoButton_Click"
-                            Width="120" Height="44"
-                            FontSize="16" FontWeight="SemiBold"
+                            Width="160" Height="48"
+                            FontSize="18" FontWeight="SemiBold"
                             Foreground="White"
                             BorderThickness="0"
                             Cursor="Hand"
@@ -81,8 +81,10 @@
                                                       VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="White"/>
+                                        <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -93,8 +95,8 @@
                     <Button x:Name="YesButton"
                             Content="{Binding [Common.Yes], Source={x:Static svc:LocalizationService.Instance}}"
                             Click="YesButton_Click"
-                            Width="120" Height="44"
-                            FontSize="16" FontWeight="Bold"
+                            Width="160" Height="48"
+                            FontSize="18" FontWeight="Bold"
                             Foreground="White"
                             BorderThickness="0"
                             Cursor="Hand">
@@ -111,8 +113,10 @@
                                                       VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="White"/>
+                                        <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>

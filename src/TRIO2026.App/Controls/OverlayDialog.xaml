@@ -69,7 +69,7 @@
                     <Button x:Name="PrimaryButton"
                             Content="確定"
                             Click="PrimaryButton_Click"
-                            Width="200" Height="44"
+                            Width="240" Height="48"
                             FontSize="16" FontWeight="SemiBold"
                             Foreground="White"
                             BorderThickness="0"
@@ -83,11 +83,18 @@
                         </Button.Background>
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}"
+                                <Border x:Name="Bd" Background="{TemplateBinding Background}"
                                         CornerRadius="8"
                                         Padding="16,8">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="#4CAF50"/>
+                                        <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
@@ -97,7 +104,7 @@
                             Content="中間選項"
                             Click="MiddleButton_Click"
                             Visibility="Collapsed"
-                            Width="200" Height="44"
+                            Width="240" Height="48"
                             FontSize="16" FontWeight="SemiBold"
                             Foreground="White"
                             BorderThickness="0"
@@ -105,7 +112,7 @@
                             Margin="0,0,0,8">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border CornerRadius="8" Padding="16,8">
+                                <Border x:Name="Bd" CornerRadius="8" Padding="16,8">
                                     <Border.Background>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                             <GradientStop Color="#EF5350" Offset="0" />
@@ -114,6 +121,13 @@
                                     </Border.Background>
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="#FFCDD2"/>
+                                        <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
@@ -123,7 +137,7 @@
                             Content="取消"
                             Click="SecondaryButton_Click"
                             Visibility="Collapsed"
-                            Width="200" Height="44"
+                            Width="240" Height="48"
                             FontSize="16"
                             Foreground="#78909C"
                             Background="Transparent"
@@ -132,13 +146,19 @@
                             Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}"
+                                <Border x:Name="Bd" Background="{TemplateBinding Background}"
                                         BorderBrush="{TemplateBinding BorderBrush}"
                                         BorderThickness="{TemplateBinding BorderThickness}"
                                         CornerRadius="8"
                                         Padding="16,8">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#2A3D5E"/>
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="#78909C"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>

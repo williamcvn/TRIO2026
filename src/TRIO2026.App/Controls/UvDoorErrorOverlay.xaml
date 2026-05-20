@@ -56,19 +56,19 @@
 
                 <!-- Error! 標題 -->
                 <TextBlock Text="{Binding [UV.DoorErrorTitle], Source={x:Static svc:LocalizationService.Instance}}"
-                           FontSize="28" FontWeight="Bold"
+                           FontSize="32" FontWeight="Bold"
                            Foreground="#FFFFFF"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,16"/>
 
                 <!-- 錯誤訊息 -->
                 <TextBlock Text="{Binding [UV.DoorErrorMessage], Source={x:Static svc:LocalizationService.Instance}}"
-                           FontSize="16"
-                           Foreground="#E53935"
+                           FontSize="20"
+                           Foreground="#EF5350"
                            TextWrapping="Wrap"
                            TextAlignment="Center"
                            HorizontalAlignment="Center"
-                           MaxWidth="280"/>
+                           MaxWidth="300"/>
             </StackPanel>
         </Border>
     </Grid>

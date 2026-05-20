@@ -16,17 +16,17 @@
                     Margin="0,22,20,0" Cursor="Hand"
                     MouseLeftButtonUp="OnUserIconClick"
                     Background="Transparent">
-            <Border Background="#263B5E" CornerRadius="20" Width="36" Height="36"
+            <Border Background="#263B5E" CornerRadius="24" Width="48" Height="48"
                     VerticalAlignment="Center" Margin="0,0,10,0">
-                <TextBlock Text="👤" FontSize="18"
+                <TextBlock Text="👤" FontSize="22"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
             <StackPanel VerticalAlignment="Center">
                 <TextBlock x:Name="UserNameText" Text=""
-                           FontSize="14" FontWeight="SemiBold"
+                           FontSize="16" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" />
                 <TextBlock x:Name="UserRoleText" Text=""
-                           FontSize="11"
+                           FontSize="13"
                            Foreground="{StaticResource TextSecondaryBrush}" />
             </StackPanel>
         </StackPanel>
@@ -35,9 +35,9 @@
         <Grid x:Name="UserMenuOverlay" Visibility="Collapsed"
               Background="#01000000" MouseLeftButtonUp="OnOverlayClick"
               MouseMove="OnOverlayMouseMove">
-            <Border Background="#1E2D4A" CornerRadius="12"
+            <Border Background="#1E2D4A" CornerRadius="14"
                     BorderBrush="#2A3D5E" BorderThickness="1"
-                    Padding="6" MinWidth="200"
+                    Padding="10" MinWidth="260"
                     HorizontalAlignment="Right" VerticalAlignment="Top"
                     Margin="0,80,20,0">
                 <Border.Effect>
@@ -50,18 +50,18 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
-                                        CornerRadius="8" Padding="14,10">
+                                        CornerRadius="8" Padding="20,16">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🏠" FontSize="18" VerticalAlignment="Center"
-                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="🏠" FontSize="22" VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"/>
                                         <TextBlock Text="{Binding [UserMenu.Home], Source={x:Static svc:LocalizationService.Instance}}"
-                                                   FontSize="14"
+                                                   FontSize="17"
                                                    Foreground="#F0F4F8" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
                                         <Setter TargetName="Bd" Property="Opacity" Value="0.35"/>
@@ -78,18 +78,18 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
-                                        CornerRadius="8" Padding="14,10">
+                                        CornerRadius="8" Padding="20,16">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🔧" FontSize="18" VerticalAlignment="Center"
-                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="🔧" FontSize="22" VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"/>
                                         <TextBlock Text="{Binding [UserMenu.ServiceMode], Source={x:Static svc:LocalizationService.Instance}}"
-                                                   FontSize="14"
+                                                   FontSize="17"
                                                    Foreground="#F0F4F8" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -102,18 +102,18 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
-                                        CornerRadius="8" Padding="14,10">
+                                        CornerRadius="8" Padding="20,16">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🌐" FontSize="18" VerticalAlignment="Center"
-                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="🌐" FontSize="22" VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"/>
                                         <TextBlock Text="{Binding [UserMenu.SwitchLanguage], Source={x:Static svc:LocalizationService.Instance}}"
-                                                   FontSize="14"
+                                                   FontSize="17"
                                                    Foreground="#F0F4F8" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -127,18 +127,18 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
-                                        CornerRadius="8" Padding="14,10">
+                                        CornerRadius="8" Padding="20,16">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🚪" FontSize="18"
-                                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <TextBlock Text="🚪" FontSize="22"
+                                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
                                         <TextBlock Text="{TemplateBinding Tag}"
-                                                   FontSize="14" Foreground="#F0F4F8"
+                                                   FontSize="17" Foreground="#F0F4F8"
                                                    VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#3D2020"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#5D3030"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -152,9 +152,9 @@
         <Grid x:Name="LanguageOverlay" Visibility="Collapsed"
               Background="#01000000" MouseLeftButtonUp="OnOverlayClick"
               MouseMove="OnOverlayMouseMove">
-            <Border Background="#1E2D4A" CornerRadius="12"
+            <Border Background="#1E2D4A" CornerRadius="14"
                     BorderBrush="#2A3D5E" BorderThickness="1"
-                    Padding="6" MinWidth="200"
+                    Padding="10" MinWidth="260"
                     HorizontalAlignment="Right" VerticalAlignment="Top"
                     Margin="0,80,20,0">
                 <Border.Effect>
@@ -166,12 +166,12 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
-                                        CornerRadius="8" Padding="14,10">
-                                    <TextBlock Text="🇺🇸  English" FontSize="14" Foreground="#F0F4F8"/>
+                                        CornerRadius="8" Padding="20,16">
+                                    <TextBlock Text="🇺🇸  English" FontSize="17" Foreground="#F0F4F8"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -181,12 +181,12 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
-                                        CornerRadius="8" Padding="14,10">
-                                    <TextBlock Text="🇹🇼  繁體中文" FontSize="14" Foreground="#F0F4F8"/>
+                                        CornerRadius="8" Padding="20,16">
+                                    <TextBlock Text="🇹🇼  繁體中文" FontSize="17" Foreground="#F0F4F8"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -196,12 +196,12 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
-                                        CornerRadius="8" Padding="14,10">
-                                    <TextBlock Text="🇨🇳  简体中文" FontSize="14" Foreground="#F0F4F8"/>
+                                        CornerRadius="8" Padding="20,16">
+                                    <TextBlock Text="🇨🇳  简体中文" FontSize="17" Foreground="#F0F4F8"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -211,12 +211,12 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
-                                        CornerRadius="8" Padding="14,10">
-                                    <TextBlock Text="🇯🇵  日本語" FontSize="14" Foreground="#F0F4F8"/>
+                                        CornerRadius="8" Padding="20,16">
+                                    <TextBlock Text="🇯🇵  日本語" FontSize="17" Foreground="#F0F4F8"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>

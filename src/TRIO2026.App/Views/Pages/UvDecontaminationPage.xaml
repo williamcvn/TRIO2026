@@ -31,12 +31,10 @@
                                               VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#3A5070"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#42A5F5"/>
-                            </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#1A2F4D"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#42A5F5"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#90CAF9"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Bd" Property="Opacity" Value="0.3"/>
@@ -277,8 +275,10 @@
                                     <Setter TargetName="BtnText" Property="Text"
                                             Value="{Binding [UV.Stop], Source={x:Static svc:LocalizationService.Instance}}"/>
                                 </DataTrigger>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="BtnBd" Property="Opacity" Value="0.85"/>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BtnBd" Property="Opacity" Value="0.7"/>
+                                    <Setter TargetName="BtnBd" Property="BorderBrush" Value="White"/>
+                                    <Setter TargetName="BtnBd" Property="BorderThickness" Value="2"/>
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="False">
                                     <Setter TargetName="BtnBd" Property="Opacity" Value="0.3"/>

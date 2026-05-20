@@ -87,7 +87,7 @@
                 <Button x:Name="ConfirmButton"
                         Content="驗證"
                         Click="ConfirmButton_Click"
-                        Width="200" Height="44"
+                        Width="240" Height="48"
                         FontSize="16" FontWeight="SemiBold"
                         Foreground="White"
                         BorderThickness="0"
@@ -95,9 +95,16 @@
                         Margin="0,0,0,8">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border Background="#1B8A6B" CornerRadius="8" Padding="16,8">
+                            <Border x:Name="Bd" Background="#1B8A6B" CornerRadius="8" Padding="16,8">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#14725A"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#4CAF50"/>
+                                    <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
@@ -106,7 +113,7 @@
                 <Button x:Name="CancelButton"
                         Content="取消"
                         Click="CancelButton_Click"
-                        Width="200" Height="44"
+                        Width="240" Height="48"
                         FontSize="16"
                         Foreground="#78909C"
                         Background="Transparent"
@@ -114,11 +121,17 @@
                         Cursor="Hand">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border Background="Transparent"
+                            <Border x:Name="Bd" Background="Transparent"
                                     BorderBrush="#3D5577" BorderThickness="1"
                                     CornerRadius="8" Padding="16,8">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#2A3D5E"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#78909C"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
