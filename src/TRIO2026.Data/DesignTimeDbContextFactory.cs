@@ -8,58 +8,6 @@ namespace TRIO2026.Data;
 /// Design-Time Factory — 供 EF Core CLI (dotnet ef) 使用
 /// 在 CLI 環境下，DI 容器不可用，需要此 Factory 建立 DbContext
 /// </summary>
-public class MainDbContextFactory : IDesignTimeDbContextFactory<MainDbContext>
-{
-    public MainDbContext CreateDbContext(string[] args)
-    {
-        var dbPath = Path.Combine(FindDatabaseDir(), "trio240plus_main.db");
-        var options = new DbContextOptionsBuilder<MainDbContext>()
-            .UseSqlite($"Data Source={dbPath}")
-            .Options;
-        return new MainDbContext(options);
-    }
-
-    private static string FindDatabaseDir()
-    {
-        // 從專案目錄往上找 Database 資料夾
-        var dir = Directory.GetCurrentDirectory();
-        for (int i = 0; i < 8; i++)
-        {
-            var dbDir = Path.Combine(dir, "Database");
-            if (Directory.Exists(dbDir)) return dbDir;
-            var parent = Directory.GetParent(dir);
-            if (parent == null) break;
-            dir = parent.FullName;
-        }
-        return @"D:\TRIO2026\Database";
-    }
-}
-
-public class ConfigDbContextFactory : IDesignTimeDbContextFactory<ConfigDbContext>
-{
-    public ConfigDbContext CreateDbContext(string[] args)
-    {
-        var dbPath = Path.Combine(FindDatabaseDir(), "trio240plus_config.db");
-        var options = new DbContextOptionsBuilder<ConfigDbContext>()
-            .UseSqlite($"Data Source={dbPath}")
-            .Options;
-        return new ConfigDbContext(options);
-    }
-
-    private static string FindDatabaseDir()
-    {
-        var dir = Directory.GetCurrentDirectory();
-        for (int i = 0; i < 8; i++)
-        {
-            var dbDir = Path.Combine(dir, "Database");
-            if (Directory.Exists(dbDir)) return dbDir;
-            var parent = Directory.GetParent(dir);
-            if (parent == null) break;
-            dir = parent.FullName;
-        }
-        return @"D:\TRIO2026\Database";
-    }
-}
 
 public class SystemConfigDbContextFactory : IDesignTimeDbContextFactory<SystemConfigDbContext>
 {

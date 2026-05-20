@@ -1,0 +1,33 @@
+<Window x:Class="TRIO2026.App.Views.AppShell"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:TRIO2026.App.Controls"
+        xmlns:pages="clr-namespace:TRIO2026.App.Views.Pages"
+        Title="TRIO2026"
+        WindowStyle="None"
+        WindowState="Maximized"
+        ResizeMode="NoResize"
+        Background="#0F1B2D">
+
+    <!-- Viewbox 等比縮放：以 600×960 為設計基準 -->
+    <Viewbox Stretch="Uniform" StretchDirection="Both">
+        <Border Width="600" Height="960">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0.5,1">
+                    <GradientStop Color="#0F1B2D" Offset="0" />
+                    <GradientStop Color="#1A2744" Offset="0.5" />
+                    <GradientStop Color="#0D2137" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <Grid>
+                <!-- 頁面主機（切換頁面內容） -->
+                <ContentControl x:Name="PageHost" />
+
+                <!-- 共用 Overlay（在所有頁面上方） -->
+                <controls:OverlayDialog x:Name="DialogOverlay" />
+                <controls:LoginOverlay x:Name="LoginOverlayHost" />
+            </Grid>
+        </Border>
+    </Viewbox>
+</Window>

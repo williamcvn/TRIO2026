@@ -157,6 +157,26 @@ public static class SystemSettingSeed
                 Remark = "✅ 已實作 — AppShell.cs 免登入模式設定 Guest Session"
             },
 
+            // ── Guest Account 設定 ──
+            new()
+            {
+                Id = 18,
+                Category = "Auth",
+                Key = "guest_account_username",
+                Value = "local_operator",
+                Description = "免登入模式專用帳號的 username（對應 main.db User 表）",
+                Remark = "✅ 已實作 — AppShell.cs 免登入模式從 DB 載入此帳號"
+            },
+            new()
+            {
+                Id = 19,
+                Category = "Auth",
+                Key = "guest_account_display_name",
+                Value = "Local Operator",
+                Description = "免登入模式右上角顯示的名稱",
+                Remark = "✅ 已實作 — SessionService + UserMenuControl 讀取顯示"
+            },
+
             // ── App Close 設定（轉移自 trio240plus_config.db Id 2506-2508） ──
             new()
             {

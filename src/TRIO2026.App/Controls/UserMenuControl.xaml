@@ -1,0 +1,228 @@
+<UserControl x:Class="TRIO2026.App.Controls.UserMenuControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:svc="clr-namespace:TRIO2026.App.Services"
+             x:Name="UserMenuRoot">
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F0F4F8"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#B0BEC5"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- ═══ 使用者圖示（始終可見，右上角定位） ═══ -->
+        <StackPanel x:Name="UserIconPanel" Orientation="Horizontal"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="0,22,20,0" Cursor="Hand"
+                    MouseLeftButtonUp="OnUserIconClick"
+                    Background="Transparent">
+            <Border Background="#263B5E" CornerRadius="20" Width="36" Height="36"
+                    VerticalAlignment="Center" Margin="0,0,10,0">
+                <TextBlock Text="👤" FontSize="18"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock x:Name="UserNameText" Text=""
+                           FontSize="14" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+                <TextBlock x:Name="UserRoleText" Text=""
+                           FontSize="11"
+                           Foreground="{StaticResource TextSecondaryBrush}" />
+            </StackPanel>
+        </StackPanel>
+
+        <!-- ═══ 使用者選單 Overlay（全螢幕遮罩，阻擋背景互動） ═══ -->
+        <Grid x:Name="UserMenuOverlay" Visibility="Collapsed"
+              Background="#01000000" MouseLeftButtonUp="OnOverlayClick"
+              MouseMove="OnOverlayMouseMove">
+            <Border Background="#1E2D4A" CornerRadius="12"
+                    BorderBrush="#2A3D5E" BorderThickness="1"
+                    Padding="6" MinWidth="200"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="0,80,20,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="4"
+                                      Color="#000000" Opacity="0.5"/>
+                </Border.Effect>
+                <StackPanel MouseLeftButtonUp="OnMenuPanelClick">
+                    <!-- 返回主畫面 -->
+                    <Button x:Name="BtnHome" Click="OnHomeClick" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="14,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🏠" FontSize="18" VerticalAlignment="Center"
+                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding [UserMenu.Home], Source={x:Static svc:LocalizationService.Instance}}"
+                                                   FontSize="14"
+                                                   Foreground="#F0F4F8" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.35"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <!-- HOME 分隔線 -->
+                    <Border x:Name="HomeSeparator" Height="1" Background="#2A3D5E" Margin="8,4"/>
+                    <!-- Service Mode 切換（僅免登入模式可見） -->
+                    <Button x:Name="BtnServiceMode" Click="OnServiceModeClick" Cursor="Hand"
+                            Visibility="Collapsed">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="14,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🔧" FontSize="18" VerticalAlignment="Center"
+                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding [UserMenu.ServiceMode], Source={x:Static svc:LocalizationService.Instance}}"
+                                                   FontSize="14"
+                                                   Foreground="#F0F4F8" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Border x:Name="ServiceModeSeparator" Height="1" Background="#2A3D5E" Margin="8,4"
+                            Visibility="Collapsed"/>
+                    <!-- 切換語系 -->
+                    <Button x:Name="BtnSwitchLanguage" Click="OnSwitchLanguageClick" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="14,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🌐" FontSize="18" VerticalAlignment="Center"
+                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding [UserMenu.SwitchLanguage], Source={x:Static svc:LocalizationService.Instance}}"
+                                                   FontSize="14"
+                                                   Foreground="#F0F4F8" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <!-- 語系分隔線 -->
+                    <Border x:Name="LangSeparator" Height="1" Background="#2A3D5E" Margin="8,4"/>
+                    <!-- 登出/關閉按鈕 -->
+                    <Button Click="OnLogoutOrCloseClick" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="14,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🚪" FontSize="18"
+                                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding [UserMenu.Logout], Source={x:Static svc:LocalizationService.Instance}}"
+                                                   FontSize="14" Foreground="#F0F4F8"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3D2020"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ═══ 語系選擇 Overlay（全螢幕遮罩） ═══ -->
+        <Grid x:Name="LanguageOverlay" Visibility="Collapsed"
+              Background="#01000000" MouseLeftButtonUp="OnOverlayClick"
+              MouseMove="OnOverlayMouseMove">
+            <Border Background="#1E2D4A" CornerRadius="12"
+                    BorderBrush="#2A3D5E" BorderThickness="1"
+                    Padding="6" MinWidth="200"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="0,80,20,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="4"
+                                      Color="#000000" Opacity="0.5"/>
+                </Border.Effect>
+                <StackPanel MouseLeftButtonUp="OnMenuPanelClick">
+                    <Button Click="OnLangSelected" Tag="en" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="14,10">
+                                    <TextBlock Text="🇺🇸  English" FontSize="14" Foreground="#F0F4F8"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button Click="OnLangSelected" Tag="zh-TW" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="14,10">
+                                    <TextBlock Text="🇹🇼  繁體中文" FontSize="14" Foreground="#F0F4F8"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button Click="OnLangSelected" Tag="zh-CN" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="14,10">
+                                    <TextBlock Text="🇨🇳  简体中文" FontSize="14" Foreground="#F0F4F8"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button Click="OnLangSelected" Tag="ja" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="14,10">
+                                    <TextBlock Text="🇯🇵  日本語" FontSize="14" Foreground="#F0F4F8"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#263B5E"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

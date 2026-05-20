@@ -47,9 +47,7 @@ public static class DatabaseInitializer
         var credentials = SeedCredentialProvider.LoadOrGenerate(_databaseDir);
 
         // 初始化資料庫
-        await InitializeConfigDbAsync();
         await InitializeSystemConfigDbAsync();
-        await InitializeMainDbAsync(credentials);
         await InitializeAppMainDbAsync(credentials);
         await InitializeEventLogDbAsync();
 
@@ -59,36 +57,7 @@ public static class DatabaseInitializer
         Console.WriteLine("[DatabaseInitializer] 全部初始化完成");
     }
 
-    /// <summary>初始化 Config DB + Seed Data</summary>
-    private static async Task InitializeConfigDbAsync()
-    {
-        const string dbFile = "trio240plus_config.db";
-        var dbPath = GetDatabasePath(dbFile);
-        Console.WriteLine($"  -> 初始化機器配置庫 ({dbFile})...");
-
-        var options = new DbContextOptionsBuilder<ConfigDbContext>()
-            .UseSqlite($"Data Source={dbPath}")
-            .Options;
-
-        await using var context = new ConfigDbContext(options);
-        var created = await context.Database.EnsureCreatedAsync();
-        Console.WriteLine($"    資料庫{(created ? "已建立" : "已存在")}");
-
-        await SetPragmasAsync(context);
-
-        // 植入 CommandDefinition 種子資料
-        if (!await context.CommandDefinitions.AnyAsync())
-        {
-            var seeds = CommandDefinitionSeed.GetSeedData();
-            context.CommandDefinitions.AddRange(seeds);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已植入 {seeds.Count} 筆指令定義");
-        }
-        else
-        {
-            Console.WriteLine($"    指令定義已存在，跳過植入");
-        }
-    }
+    // [已移除] InitializeConfigDbAsync — trio240plus_config.db 已廢棄
 
     /// <summary>初始化 SystemConfig DB（system_config.db）+ Seed Data</summary>
     private static async Task InitializeSystemConfigDbAsync()
@@ -228,78 +197,9 @@ public static class DatabaseInitializer
         }
     }
 
-    /// <summary>初始化 Main DB + Seed Data</summary>
-    private static async Task InitializeMainDbAsync(Dictionary<string, string> credentials)
-    {
-        const string dbFile = "trio240plus_main.db";
-        var dbPath = GetDatabasePath(dbFile);
-        Console.WriteLine($"  -> 初始化業務核心庫 ({dbFile})...");
-
-        var options = new DbContextOptionsBuilder<MainDbContext>()
-            .UseSqlite($"Data Source={dbPath}")
-            .Options;
-
-        await using var context = new MainDbContext(options);
-        var created = await context.Database.EnsureCreatedAsync();
-        Console.WriteLine($"    資料庫{(created ? "已建立" : "已存在")}");
-
-        await SetPragmasAsync(context);
-
-        // 植入 FlowMapping
-        if (!await context.FlowMappings.AnyAsync())
-        {
-            var mappings = FlowInfoSeed.GetFlowMappings();
-            context.FlowMappings.AddRange(mappings);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已植入 {mappings.Count} 筆 FlowMapping");
-        }
-        else
-        {
-            Console.WriteLine($"    FlowMapping 已存在，跳過植入");
-        }
-
-        // 植入 PnidMapping
-        if (!await context.PnidMappings.AnyAsync())
-        {
-            var pnids = FlowInfoSeed.GetPnidMappings();
-            context.PnidMappings.AddRange(pnids);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已植入 {pnids.Count} 筆 PnidMapping");
-        }
-        else
-        {
-            Console.WriteLine($"    PnidMapping 已存在，跳過植入");
-        }
-
-        // 植入 RoleDefinition（必須在 UserAccount 之前，因 FK 依賴）
-        if (!await context.RoleDefinitions.AnyAsync())
-        {
-            var roles = RoleDefinitionSeed.GetSeedData();
-            context.RoleDefinitions.AddRange(roles);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已植入 {roles.Count} 筆角色定義");
-        }
-        else
-        {
-            Console.WriteLine($"    角色定義已存在，跳過植入");
-        }
-
-        // 植入 UserAccount（使用外部密碼）
-        if (!await context.UserAccounts.AnyAsync())
-        {
-            var users = UserAccountSeed.GetSeedData(credentials, PasswordHasher);
-            context.UserAccounts.AddRange(users);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已植入 {users.Count} 筆使用者帳號（密碼已{(PasswordHasher != null ? "BCrypt 雜湊" : "PLACEHOLDER")}）");
-        }
-        else
-        {
-            Console.WriteLine($"    使用者帳號已存在，跳過植入");
-        }
-    }
-
-    // [已移除] InitializeDataDbAsync — trio240plus_data.db 已廢棄
-    // [已移除] InitializeLogDbAsync  — trio240plus_log.db 已廢棄（改用 system_event.db）
+    // [已移除] InitializeMainDbAsync   — trio240plus_main.db 已廢棄
+    // [已移除] InitializeDataDbAsync    — trio240plus_data.db 已廢棄
+    // [已移除] InitializeLogDbAsync     — trio240plus_log.db 已廢棄（改用 system_event.db）
 
     /// <summary>
     /// 設定 SQLite PRAGMA（WAL 模式、外鍵、快取等）
@@ -423,17 +323,22 @@ public static class DatabaseInitializer
         await context.Database.MigrateAsync();
         Console.WriteLine(isNew ? "    資料庫已建立" : "    資料庫 Migration 完成");
 
-        // 增量植入 User（使用外部密碼）
-        if (!context.Users.Any())
+        // 增量植入 User（按 Id 補入缺少的帳號）
         {
             var users = UserSeed.GetSeedData(credentials, PasswordHasher);
-            context.Users.AddRange(users);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已植入 {users.Count} 筆使用者帳號");
-        }
-        else
-        {
-            Console.WriteLine("    使用者帳號已存在，跳過植入");
+            var existingIds = context.Users.Select(u => u.Id).ToHashSet();
+            var newUsers = users.Where(u => !existingIds.Contains(u.Id)).ToList();
+
+            if (newUsers.Count > 0)
+            {
+                context.Users.AddRange(newUsers);
+                await context.SaveChangesAsync();
+                Console.WriteLine($"    已補入 {newUsers.Count} 筆使用者帳號");
+            }
+            else
+            {
+                Console.WriteLine("    使用者帳號已是最新，無需補入");
+            }
         }
 
         await SetPragmasAsync(context);

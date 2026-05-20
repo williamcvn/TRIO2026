@@ -1,0 +1,125 @@
+<UserControl x:Class="TRIO2026.App.Controls.UvStopConfirmOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:svc="clr-namespace:TRIO2026.App.Services"
+             Visibility="Collapsed">
+
+    <!-- 全螢幕半透明遮罩 + 置中對話框 -->
+    <Grid>
+        <!-- 背景遮罩 -->
+        <Border Background="#80000000" />
+
+        <!-- 對話框卡片 -->
+        <Border x:Name="DialogCard"
+                MaxWidth="420" MinWidth="300"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                CornerRadius="16"
+                Padding="36,32"
+                Margin="32">
+            <Border.Background>
+                <SolidColorBrush Color="#1E2D45" Opacity="0.97" />
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="40" ShadowDepth="0" Opacity="0.5" />
+            </Border.Effect>
+            <Border.RenderTransform>
+                <ScaleTransform x:Name="CardScale" ScaleX="1" ScaleY="1" />
+            </Border.RenderTransform>
+            <Border.RenderTransformOrigin>
+                <Point X="0.5" Y="0.5" />
+            </Border.RenderTransformOrigin>
+
+            <StackPanel>
+                <!-- ═══ 八邊形 icon ═══ -->
+                <Grid Width="72" Height="72" HorizontalAlignment="Center" Margin="0,0,0,16">
+                    <Polygon Points="22,0 50,0 72,22 72,50 50,72 22,72 0,50 0,22"
+                             Fill="#2E77DD" Stroke="#4A90E2" StrokeThickness="1"/>
+                    <TextBlock Text="i" FontSize="36" FontWeight="Bold"
+                               FontFamily="Georgia"
+                               Foreground="White" FontStyle="Italic"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,-2,0,0"/>
+                </Grid>
+
+                <!-- Information 標題 -->
+                <TextBlock Text="{Binding [UV.StopConfirmTitle], Source={x:Static svc:LocalizationService.Instance}}"
+                           FontSize="20" FontWeight="SemiBold"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,20"/>
+
+                <!-- 紅色警告文字 -->
+                <TextBlock Text="{Binding [UV.StopConfirmMessage], Source={x:Static svc:LocalizationService.Instance}}"
+                           FontSize="14" FontWeight="Normal"
+                           Foreground="#EF5350"
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           Margin="0,0,0,28"/>
+
+                <!-- ═══ 按鈕列（水平並排） ═══ -->
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+                    <!-- No 按鈕（左）— 淡藍底 -->
+                    <Button x:Name="NoButton"
+                            Content="{Binding [Common.No], Source={x:Static svc:LocalizationService.Instance}}"
+                            Click="NoButton_Click"
+                            Width="120" Height="44"
+                            FontSize="16" FontWeight="SemiBold"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Margin="0,0,16,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" CornerRadius="8" Padding="16,8">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="#3A6EA5"/>
+                                    </Border.Background>
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- YES 按鈕（右）— 深藍底 -->
+                    <Button x:Name="YesButton"
+                            Content="{Binding [Common.Yes], Source={x:Static svc:LocalizationService.Instance}}"
+                            Click="YesButton_Click"
+                            Width="120" Height="44"
+                            FontSize="16" FontWeight="Bold"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" CornerRadius="8" Padding="16,8">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#1565C0" Offset="0" />
+                                            <GradientStop Color="#1E88E5" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,338 @@
+<UserControl x:Class="TRIO2026.App.Views.Pages.UvDecontaminationPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:TRIO2026.App.Controls"
+             xmlns:svc="clr-namespace:TRIO2026.App.Services"
+             Background="#0A1628">
+
+    <UserControl.Resources>
+        <Color x:Key="PrimaryBlue">#42A5F5</Color>
+        <Color x:Key="StopRed">#E53935</Color>
+        <Color x:Key="TextPrimary">#F0F4F8</Color>
+        <Color x:Key="TextSecondary">#B0BEC5</Color>
+
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
+        <SolidColorBrush x:Key="StopRedBrush" Color="{StaticResource StopRed}"/>
+
+        <!-- 觸控方向鍵樣式 -->
+        <Style x:Key="ArrowButton" TargetType="Button">
+            <Setter Property="Width" Value="64"/>
+            <Setter Property="Height" Value="64"/>
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="#2A3D5E" CornerRadius="32"
+                                BorderBrush="#3A5070" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3A5070"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#42A5F5"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1A2F4D"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══ 頂部列 ═══ -->
+        <Border Grid.Row="0" Background="#0D1B30"
+                BorderBrush="#1A2F4D" BorderThickness="0,0,0,1">
+            <Grid Margin="20,0">
+                <TextBlock Text="TRIO 2026"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           FontSize="14" VerticalAlignment="Center"
+                           HorizontalAlignment="Left"/>
+
+                <TextBlock Text="{Binding [UV.Title], Source={x:Static svc:LocalizationService.Instance}}"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           FontSize="20" FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
+                <!-- 右上角使用者圖示由 UserMenuControl 提供 -->
+            </Grid>
+        </Border>
+
+        <!-- ═══ 主內容區 ═══ -->
+        <Grid Grid.Row="1" VerticalAlignment="Center">
+            <StackPanel HorizontalAlignment="Center">
+
+                <!-- UV 燈泡圖示（純 XAML，啟動時發光） -->
+                <Grid x:Name="UvLampIcon" Width="120" Height="120" Margin="0,0,0,30"
+                      HorizontalAlignment="Center">
+
+                    <!-- 外層光暈（啟動時亮起） -->
+                    <Ellipse x:Name="GlowOuter" Width="120" Height="120" Opacity="0">
+                        <Ellipse.Fill>
+                            <SolidColorBrush Color="#7C4DFF"/>
+                        </Ellipse.Fill>
+                        <Ellipse.Effect>
+                            <BlurEffect Radius="25"/>
+                        </Ellipse.Effect>
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard x:Name="GlowPulse">
+                                                <Storyboard>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        To="0.7" Duration="0:0:0.4"/>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        From="0.5" To="0.85"
+                                                        BeginTime="0:0:0.4"
+                                                        Duration="0:0:1.2"
+                                                        AutoReverse="True"
+                                                        RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <StopStoryboard BeginStoryboardName="GlowPulse"/>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        To="0" Duration="0:0:0.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+
+                    <!-- 底圈背景 -->
+                    <Ellipse Width="100" Height="100">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#1A2F4D"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation
+                                                        Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"
+                                                        To="#2D1B69" Duration="0:0:0.4"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation
+                                                        Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"
+                                                        To="#1A2F4D" Duration="0:0:0.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+
+                    <!-- 燈泡內圈（啟動時變亮） -->
+                    <Ellipse Width="60" Height="60"
+                             HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill">
+                                    <Setter.Value>
+                                        <RadialGradientBrush>
+                                            <GradientStop Color="#2A3D5E" Offset="0"/>
+                                            <GradientStop Color="#1A2F4D" Offset="1"/>
+                                        </RadialGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                        <Setter Property="Fill">
+                                            <Setter.Value>
+                                                <RadialGradientBrush>
+                                                    <GradientStop Color="#B388FF" Offset="0"/>
+                                                    <GradientStop Color="#7C4DFF" Offset="1"/>
+                                                </RadialGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+
+                    <!-- UV 文字標記 -->
+                    <TextBlock Text="UV" FontSize="22" FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#4A6080"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation
+                                                        Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)"
+                                                        To="#FFFFFF" Duration="0:0:0.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation
+                                                        Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)"
+                                                        To="#4A6080" Duration="0:0:0.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+                <!-- 時間選擇器（未啟動時顯示） -->
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,20"
+                            Visibility="{Binding ShowTimeSelector, Converter={StaticResource BoolToVis}}">
+
+                    <Button Style="{StaticResource ArrowButton}"
+                            Content="◀"
+                            Command="{Binding PreviousCommand}"/>
+
+                    <TextBlock Text="{Binding SelectedDisplayLabel}"
+                               FontSize="48" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"
+                               Margin="24,0"
+                               MinWidth="160"
+                               TextAlignment="Center"/>
+
+                    <Button Style="{StaticResource ArrowButton}"
+                            Content="▶"
+                            Command="{Binding NextCommand}"/>
+                </StackPanel>
+
+                <!-- 倒數計時顯示（啟動後顯示） -->
+                <TextBlock Text="{Binding RemainingDisplay}"
+                           FontSize="64" FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,20"
+                           Visibility="{Binding ShowCountdown, Converter={StaticResource BoolToVis}}"/>
+
+                <!-- Start / Stop 按鈕 -->
+                <Button x:Name="StartStopButton"
+                        Command="{Binding StartStopCommand}"
+                        Width="220" Height="56"
+                        HorizontalAlignment="Center"
+                        Margin="0,16,0,0"
+                        Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBd" CornerRadius="8"
+                                    Background="#42A5F5">
+                                <TextBlock x:Name="BtnText"
+                                           Text="{Binding [UV.Start], Source={x:Static svc:LocalizationService.Instance}}"
+                                           FontSize="20" FontWeight="Bold"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                    <Setter TargetName="BtnBd" Property="Background"
+                                            Value="{StaticResource StopRedBrush}"/>
+                                    <Setter TargetName="BtnText" Property="Text"
+                                            Value="{Binding [UV.Stop], Source={x:Static svc:LocalizationService.Instance}}"/>
+                                </DataTrigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBd" Property="Opacity" Value="0.85"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="BtnBd" Property="Opacity" Value="0.3"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- 門板尚未關閉警告文字 (使用 Opacity 控制顯示，保留排版空間避免跳動) -->
+                <TextBlock Text="{Binding [UV.DoorNotClosed], Source={x:Static svc:LocalizationService.Instance}}"
+                           Foreground="{StaticResource StopRedBrush}"
+                           FontSize="16" FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Margin="0,12,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Opacity" Value="0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ShowDoorWarning}" Value="True">
+                                    <Setter Property="Opacity" Value="1"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </Grid>
+
+        <!-- ═══ 底部列 ═══ -->
+        <Border Grid.Row="2" Background="#0D1B30"
+                BorderBrush="#1A2F4D" BorderThickness="0,1,0,0">
+            <Grid Margin="16,0">
+                <TextBlock Text="TRIO2026 v2026.1.0"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           FontSize="11" VerticalAlignment="Center"
+                           HorizontalAlignment="Left"/>
+                <TextBlock Text="{Binding [Common.Ready], Source={x:Static svc:LocalizationService.Instance}}"
+                           Foreground="#4CAF50" FontSize="11"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
+
+        <!-- ═══ 共用使用者選單（含 HOME 選項） ═══ -->
+        <controls:UserMenuControl x:Name="UserMenu" Grid.RowSpan="3"
+                                  ShowHomeButton="True"/>
+
+        <!-- ═══ UV 停止確認 Overlay ═══ -->
+        <controls:UvStopConfirmOverlay x:Name="StopConfirmOverlay"
+                                       Grid.RowSpan="3"/>
+
+        <!-- ═══ 門板錯誤 Overlay ═══ -->
+        <controls:UvDoorErrorOverlay x:Name="DoorErrorOverlay"
+                                     Grid.RowSpan="3"/>
+    </Grid>
+</UserControl>

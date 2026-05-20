@@ -71,6 +71,21 @@ public static class UserSeed
                 DisplayName = "Operator",
                 ForcePasswordChange = 1,
             },
+
+            // ── 免登入模式專用帳號（不需密碼） ──
+            new()
+            {
+                Id = 100,
+                Username = "local_operator",
+                PasswordHash = "",              // 免登入，不需密碼
+                RoleLevel = 1,                  // Operator（固定）
+                IsActive = 1,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM",
+                DisplayName = "Local Operator",
+                ForcePasswordChange = 0,
+                Notes = "免登入模式專用帳號。固定 Operator 權限。",
+            },
         };
     }
 }

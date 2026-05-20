@@ -193,6 +193,65 @@ public static class LocalizedStringSeed
             "发生未知错误，请回报 Error ID。",
             "不明なエラーが発生しました。エラーIDを報告してください。"));
 
+        // ══════════════════════════════════════════
+        // Menu 模組 — 主選單頁面
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "Menu", "IntelliPlex",
+            "IntelliPlex", "IntelliPlex", "IntelliPlex", "IntelliPlex"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "IntelliPlexSub",
+            "Program", "程式設定", "程序设置", "プログラム"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "Custom",
+            "Custom", "自訂", "自定义", "カスタム"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "CustomSub",
+            "Program", "程式設定", "程序设置", "プログラム"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "Data",
+            "Data", "數據", "数据", "データ"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "DataSub",
+            "History & Results", "歷史紀錄與結果", "历史记录与结果", "履歴と結果"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "Setting",
+            "Setting", "設定", "设置", "設定"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "SettingSub",
+            "System Config", "系統設定", "系统设置", "システム設定"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "UV",
+            "UV", "UV", "UV", "UV"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "UVSub",
+            "Decontamination", "消毒", "消毒", "除染"));
+        seeds.AddRange(CreateGroup(ref id, "Menu", "StatusReady",
+            "● Ready", "● 就緒", "● 就绪", "● 準備完了"));
+
+        // ══════════════════════════════════════════
+        // UserMenu 模組 — Service Mode 切換
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "UserMenu", "ServiceMode",
+            "Service Mode", "Service Mode", "Service Mode", "サービスモード"));
+        seeds.AddRange(CreateGroup(ref id, "UserMenu", "ServiceModeTitle",
+            "Service Mode Login", "Service Mode 登入", "Service Mode 登录", "サービスモード ログイン"));
+        seeds.AddRange(CreateGroup(ref id, "UserMenu", "ServiceModeMessage",
+            "Enter Service credentials to proceed.",
+            "請輸入 Service 帳號密碼以進入。",
+            "请输入 Service 账号密码以进入。",
+            "サービスアカウントの認証情報を入力してください。"));
+        seeds.AddRange(CreateGroup(ref id, "UserMenu", "ServiceModeInsufficientRole",
+            "Service role or higher is required.",
+            "需要 Service 以上角色權限。",
+            "需要 Service 以上角色权限。",
+            "Service 以上の権限が必要です。"));
+        seeds.AddRange(CreateGroup(ref id, "UserMenu", "ExitServiceModeTitle",
+            "Exit Service Mode", "退出 Service Mode", "退出 Service Mode", "サービスモード終了"));
+        seeds.AddRange(CreateGroup(ref id, "UserMenu", "ExitServiceModeMessage",
+            "Do you want to exit Service Mode and return to normal operation?",
+            "是否要退出 Service Mode 並返回一般操作模式？",
+            "是否要退出 Service Mode 并返回一般操作模式？",
+            "サービスモードを終了して通常操作に戻りますか？"));
+
+        // ══════════════════════════════════════════
+        // ServiceMode 模組 — Service Mode 頁面
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "ServiceMode", "Title",
+            "Service Mode", "Service Mode", "Service Mode", "サービスモード"));
+        seeds.AddRange(CreateGroup(ref id, "ServiceMode", "Placeholder",
+            "This page is under development.", "此頁面功能開發中。", "此页面功能开发中。", "このページは開発中です。"));
+
         return seeds;
     }
 

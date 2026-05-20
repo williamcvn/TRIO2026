@@ -29,7 +29,7 @@ while (true)
     Console.WriteLine();
     Console.ForegroundColor = ConsoleColor.White;
     Console.WriteLine("  ╔══════════════════════════════════════╗");
-    Console.WriteLine("  ║   🔑 TRIO2026 帳號密碼測試工具       ║");
+    Console.WriteLine("  ║   TRIO2026 Account Tool              ║");
     Console.WriteLine("  ╠══════════════════════════════════════╣");
     Console.WriteLine("  ║   [1]  列出所有帳號                  ║");
     Console.WriteLine("  ║   [2]  驗證密碼                      ║");
@@ -60,84 +60,100 @@ void ListAccounts()
     cmd.CommandText = @"
         SELECT Id, Username, DisplayName, RoleLevel, IsActive, 
                ForcePasswordChange, FailedLoginCount, LockedUntil,
-               LastLoginAt, EmployeeId, Department
+               LastLoginAt, Notes
         FROM User
         ORDER BY Id";
 
     var reader = cmd.ExecuteReader();
 
-    Console.WriteLine();
-    Console.ForegroundColor = ConsoleColor.DarkGray;
-    Console.WriteLine("  ┌────┬──────────────┬──────────────────┬───────┬────────┬──────────┬─────────────────────┐");
-    Console.WriteLine("  │ ID │ 帳號         │ 顯示名稱         │ Level │ 啟用   │ 需改密碼 │ 上次登入            │");
-    Console.WriteLine("  ├────┼──────────────┼──────────────────┼───────┼────────┼──────────┼─────────────────────┤");
-    Console.ResetColor();
-
     var roleName = new Dictionary<int, string> { [1] = "Operator", [2] = "Service", [3] = "Admin" };
+
+    // 先收集所有帳號資料
+    var accounts = new List<(int Id, string Username, string Display, int Level, bool Active,
+        bool ForceChange, int FailedCount, string Locked, string LastLogin, string Notes)>();
 
     while (reader.Read())
     {
-        var id = reader.GetInt32(0);
-        var username = reader.GetString(1);
-        var display = reader.IsDBNull(2) ? "" : reader.GetString(2);
-        var level = reader.GetInt32(3);
-        var active = reader.GetInt32(4) == 1;
-        var forceChange = !reader.IsDBNull(5) && reader.GetInt32(5) == 1;
-        var failedCount = reader.GetInt32(6);
-        var locked = !reader.IsDBNull(7) ? reader.GetString(7) : "";
-        var lastLogin = reader.IsDBNull(8) ? "-" : reader.GetString(8);
-        if (lastLogin.Length > 19) lastLogin = lastLogin[..19];
+        accounts.Add((
+            reader.GetInt32(0),
+            reader.GetString(1),
+            reader.IsDBNull(2) ? "" : reader.GetString(2),
+            reader.GetInt32(3),
+            reader.GetInt32(4) == 1,
+            !reader.IsDBNull(5) && reader.GetInt32(5) == 1,
+            reader.GetInt32(6),
+            !reader.IsDBNull(7) ? reader.GetString(7) : "",
+            reader.IsDBNull(8) ? "-" : reader.GetString(8),
+            reader.IsDBNull(9) ? "" : reader.GetString(9)
+        ));
+    }
 
-        var role = roleName.GetValueOrDefault(level, $"Level {level}");
+    Console.WriteLine();
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine($"  帳號總數: {accounts.Count}");
+    Console.ResetColor();
+    Console.WriteLine();
 
+    foreach (var a in accounts)
+    {
+        var role = roleName.GetValueOrDefault(a.Level, $"Level {a.Level}");
+        var lastLogin = a.LastLogin.Length > 19 ? a.LastLogin[..19] : a.LastLogin;
+
+        // 帳號標題列
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("  │ ");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.Write($"{id,-3}");
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("│ ");
+        Console.Write("  ── ");
         Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write($"{Truncate(username, 12),-12}");
+        Console.Write($"[{a.Id}] {a.Username}");
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("│ ");
+        Console.Write(" ── ");
         Console.ForegroundColor = ConsoleColor.Gray;
-        Console.Write($"{Truncate(display, 16),-16}");
+        Console.Write(a.Display);
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("│ ");
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write($"{level} {Truncate(role, 3),-3}");
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("│ ");
-        Console.ForegroundColor = active ? ConsoleColor.Green : ConsoleColor.Red;
-        Console.Write($"{(active ? "✅" : "❌"),-6}");
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("│ ");
-        Console.ForegroundColor = forceChange ? ConsoleColor.Yellow : ConsoleColor.DarkGray;
-        Console.Write($"{(forceChange ? "⚠️ 是" : "  否"),-8}");
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("│ ");
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.Write($"{lastLogin,-19}");
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine("│");
+        Console.WriteLine(" ──");
 
-        // 鎖定/失敗次數提示
-        if (!string.IsNullOrEmpty(locked) || failedCount > 0)
+        // 詳細資訊
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write("     角色: ");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write($"{role} (Level {a.Level})");
+
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write("   狀態: ");
+        Console.ForegroundColor = a.Active ? ConsoleColor.Green : ConsoleColor.Red;
+        Console.Write(a.Active ? "啟用" : "停用");
+
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write("   需改密碼: ");
+        Console.ForegroundColor = a.ForceChange ? ConsoleColor.Yellow : ConsoleColor.DarkGray;
+        Console.WriteLine(a.ForceChange ? "是" : "否");
+
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write("     上次登入: ");
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine(lastLogin);
+
+        // 鎖定/失敗次數
+        if (!string.IsNullOrEmpty(a.Locked) || a.FailedCount > 0)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            if (!string.IsNullOrEmpty(a.Locked) && a.Locked.Length >= 19)
+                Console.WriteLine($"     !! 鎖定至 {a.Locked[..19]}");
+            else if (a.FailedCount > 0)
+                Console.WriteLine($"     !! 登入失敗 {a.FailedCount} 次");
+        }
+
+        // 備註
+        if (!string.IsNullOrEmpty(a.Notes))
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write("  │    │              │                  │       │        │          │ ");
-            Console.ForegroundColor = ConsoleColor.Red;
-            if (!string.IsNullOrEmpty(locked) && locked.Length >= 19)
-                Console.Write($"🔒 鎖定至 {locked[..19]}");
-            else if (failedCount > 0)
-                Console.Write($"⚠️ 失敗 {failedCount} 次");
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("│");
+            Console.WriteLine($"     備註: {a.Notes}");
         }
+
+        Console.ResetColor();
     }
 
     Console.ForegroundColor = ConsoleColor.DarkGray;
-    Console.WriteLine("  └────┴──────────────┴──────────────────┴───────┴────────┴──────────┴─────────────────────┘");
+    Console.WriteLine("\n  ────────────────────────────────────────");
     Console.ResetColor();
 }
 
@@ -170,6 +186,17 @@ void VerifyPassword()
     var hash = reader.GetString(0);
     var level = reader.GetInt32(1);
     var display = reader.IsDBNull(2) ? "" : reader.GetString(2);
+
+    // 免登入帳號無密碼
+    if (string.IsNullOrEmpty(hash))
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"\n  ⚠ 此帳號無密碼（免登入專用帳號）");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine($"     帳號: {username} ({display})");
+        Console.ResetColor();
+        return;
+    }
 
     try
     {
@@ -279,10 +306,4 @@ string ReadPasswordMasked()
     }
     Console.WriteLine();
     return new string(pwd.ToArray());
-}
-
-static string Truncate(string s, int max)
-{
-    if (string.IsNullOrEmpty(s)) return "";
-    return s.Length <= max ? s : s[..(max - 2)] + "..";
 }

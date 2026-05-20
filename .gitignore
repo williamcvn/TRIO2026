@@ -424,7 +424,7 @@ test-results/
 
 # Mac bundle stuff
 *.dmg
-*.app
+# *.app 已移除 — 此規則會匹配 TRIO2026.App 目錄，導致整個 App 專案被忽略
 
 # content below from: https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
 # General
