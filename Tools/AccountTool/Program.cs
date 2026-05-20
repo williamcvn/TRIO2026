@@ -10,6 +10,7 @@ using Microsoft.Data.Sqlite;
 //   [1] 列出所有帳號
 //   [2] 驗證密碼（輸入帳號+密碼 → 驗證是否正確）
 //   [3] 重設密碼（輸入帳號+新密碼 → 更新 DB）
+//   [4] 清除鎖定（重設失敗次數與鎖定時間）
 // 
 // 製作者: Office of William
 // ══════════════════════════════════════════════════════════════
@@ -34,10 +35,11 @@ while (true)
     Console.WriteLine("  ║   [1]  列出所有帳號                  ║");
     Console.WriteLine("  ║   [2]  驗證密碼                      ║");
     Console.WriteLine("  ║   [3]  重設密碼                      ║");
+    Console.WriteLine("  ║   [4]  清除鎖定                      ║");
     Console.WriteLine("  ║   [0]  離開                          ║");
     Console.WriteLine("  ╚══════════════════════════════════════╝");
     Console.ResetColor();
-    Console.Write("\n  請選擇 [0-3]: ");
+    Console.Write("\n  請選擇 [0-4]: ");
     var choice = Console.ReadLine()?.Trim() ?? "";
 
     switch (choice)
@@ -45,6 +47,7 @@ while (true)
         case "1": ListAccounts(); break;
         case "2": VerifyPassword(); break;
         case "3": ResetPassword(); break;
+        case "4": ClearLock(); break;
         case "0": return;
         default: Console.WriteLine("  無效選項"); break;
     }
@@ -278,6 +281,65 @@ void ResetPassword()
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine($"\n  ❌ 找不到帳號: {username}");
+    }
+    Console.ResetColor();
+}
+
+// ── 清除鎖定 ──
+void ClearLock()
+{
+    Console.Write("\n  輸入帳號 (留空=全部解鎖): ");
+    var username = Console.ReadLine()?.Trim() ?? "";
+
+    using var conn = new SqliteConnection($"Data Source={dbPath}");
+    conn.Open();
+
+    var cmd = conn.CreateCommand();
+
+    if (string.IsNullOrEmpty(username))
+    {
+        // 全部解鎖
+        cmd.CommandText = @"UPDATE [User] 
+            SET FailedLoginCount = 0, LockedUntil = NULL,
+                UpdatedAt = @now, UpdatedBy = 'AccountTool'
+            WHERE FailedLoginCount > 0 OR LockedUntil IS NOT NULL";
+        cmd.Parameters.AddWithValue("@now", DateTime.UtcNow.ToString("O"));
+
+        var affected = cmd.ExecuteNonQuery();
+        if (affected > 0)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"\n  ✅ 已清除 {affected} 個帳號的鎖定狀態");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("\n  目前沒有帳號被鎖定或有失敗記錄");
+        }
+    }
+    else
+    {
+        // 指定帳號解鎖
+        cmd.CommandText = @"UPDATE [User] 
+            SET FailedLoginCount = 0, LockedUntil = NULL,
+                UpdatedAt = @now, UpdatedBy = 'AccountTool'
+            WHERE Username = @u";
+        cmd.Parameters.AddWithValue("@u", username);
+        cmd.Parameters.AddWithValue("@now", DateTime.UtcNow.ToString("O"));
+
+        var affected = cmd.ExecuteNonQuery();
+        if (affected > 0)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"\n  ✅ 已清除鎖定！帳號: {username}");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine($"     (FailedLoginCount=0, LockedUntil=NULL)");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"\n  ❌ 找不到帳號: {username}");
+        }
     }
     Console.ResetColor();
 }

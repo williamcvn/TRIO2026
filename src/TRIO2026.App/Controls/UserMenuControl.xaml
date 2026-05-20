@@ -122,7 +122,8 @@
                     <!-- 語系分隔線 -->
                     <Border x:Name="LangSeparator" Height="1" Background="#2A3D5E" Margin="8,4"/>
                     <!-- 登出/關閉按鈕 -->
-                    <Button Click="OnLogoutOrCloseClick" Cursor="Hand">
+                    <Button x:Name="BtnLogout" Click="OnLogoutOrCloseClick" Cursor="Hand"
+                            Tag="{Binding [UserMenu.Logout], Source={x:Static svc:LocalizationService.Instance}}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bd" Background="Transparent"
@@ -130,7 +131,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🚪" FontSize="18"
                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                        <TextBlock Text="{Binding [UserMenu.Logout], Source={x:Static svc:LocalizationService.Instance}}"
+                                        <TextBlock Text="{TemplateBinding Tag}"
                                                    FontSize="14" Foreground="#F0F4F8"
                                                    VerticalAlignment="Center"/>
                                     </StackPanel>

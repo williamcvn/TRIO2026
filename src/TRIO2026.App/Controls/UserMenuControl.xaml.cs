@@ -130,12 +130,24 @@ public partial class UserMenuControl : UserControl
         if (_sessionService?.CurrentUser != null)
         {
             var user = _sessionService.CurrentUser;
+            var loc = LocalizationService.Instance;
             UserNameText.Text = user.DisplayName ?? user.Username;
 
             if (_sessionService.IsGuestMode)
             {
                 // 免登入模式：不顯示角色資訊
                 UserRoleText.Visibility = Visibility.Collapsed;
+
+                // 登出按鈕文字改為「關閉」
+                BtnLogout.Tag = loc["UserMenu.CloseApp"];
+
+                // 顯示 Service Mode 切換按鈕
+                BtnServiceMode.Visibility = Visibility.Visible;
+                ServiceModeSeparator.Visibility = Visibility.Visible;
+
+                // Home 按鈕：尊重頁面的 ShowHomeButton 設定
+                BtnHome.Visibility = ShowHomeButton ? Visibility.Visible : Visibility.Collapsed;
+                HomeSeparator.Visibility = ShowHomeButton ? Visibility.Visible : Visibility.Collapsed;
             }
             else
             {
@@ -143,13 +155,25 @@ public partial class UserMenuControl : UserControl
                 UserRoleText.Visibility = Visibility.Visible;
                 var roleName = user.RoleLevel switch { 1 => "Operator", 2 => "Service", 3 => "Admin", _ => $"Level {user.RoleLevel}" };
                 UserRoleText.Text = $"{roleName} (Level {user.RoleLevel})";
-            }
 
-            // Home 按鈕：登入模式的 Service 角色隱藏（ServiceModePage 本身就是主畫面）
-            if (!_sessionService.IsGuestMode && _sessionService.CurrentRole == RoleLevel.Service)
-            {
-                BtnHome.Visibility = Visibility.Collapsed;
-                HomeSeparator.Visibility = Visibility.Collapsed;
+                // 登出按鈕文字恢復為「登出」
+                BtnLogout.Tag = loc["UserMenu.Logout"];
+
+                // 隱藏 Service Mode 按鈕（登入模式不需要）
+                BtnServiceMode.Visibility = Visibility.Collapsed;
+                ServiceModeSeparator.Visibility = Visibility.Collapsed;
+
+                // Home 按鈕：Service 角色或 ShowHomeButton=False 時隱藏
+                if (_sessionService.CurrentRole == RoleLevel.Service || !ShowHomeButton)
+                {
+                    BtnHome.Visibility = Visibility.Collapsed;
+                    HomeSeparator.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    BtnHome.Visibility = Visibility.Visible;
+                    HomeSeparator.Visibility = Visibility.Visible;
+                }
             }
         }
     }
@@ -319,15 +343,16 @@ public partial class UserMenuControl : UserControl
         {
             EventLogService.Instance.LogButtonClick("UserMenu", "Language", $"LangCode={langCode}");
             
-            // 如果已登入且為實體帳號 (Id > 0)，將語系偏好寫入帳號設定
-            if (_sessionService?.CurrentUser != null && _sessionService.CurrentUser.Id > 0 && _authService != null)
+            if (_sessionService != null && !_sessionService.IsGuestMode
+                && _sessionService.CurrentUser != null && _authService != null)
             {
+                // 登入模式：將語系偏好寫入帳號設定
                 await _authService.UpdateLanguagePreferenceAsync(_sessionService.CurrentUser.Id, langCode);
                 _sessionService.CurrentUser.LanguagePreference = langCode; // 同步記憶體
             }
             else if (_systemSettings != null)
             {
-                // 如果是免登入模式 (Guest, Id == 0)，則寫入系統預設語系
+                // 免登入模式：寫入系統預設語系
                 _systemSettings.DefaultLanguage = langCode;
             }
 
