@@ -12,6 +12,7 @@ namespace TRIO2026.Data.Seeding;
 ///   - LoginUI    登入介面設定
 ///   - Auth       認證設定
 ///   - AppClose   關閉控制設定
+///   - Device     裝置運作模式設定
 /// 
 /// 製作者: Office of William
 /// </summary>
@@ -89,7 +90,7 @@ public static class SystemSettingSeed
                 Key = "show_user_dropdown",
                 Value = "0",
                 Description = "登入頁面是否顯示使用者下拉清單（0=停用, 1=啟用）",
-                Remark = "⬜ 未實作 — LoginPage 尚未讀取此設定"
+                Remark = "✅ 已實作 — LoginPage 根據此設定切換帳號文字框/下拉選單"
             },
             new()
             {
@@ -204,6 +205,28 @@ public static class SystemSettingSeed
                 Value = "0",
                 Description = "Alt+F4 關閉是否啟用（0=停用, 1=啟用）",
                 Remark = "✅ 已實作 — AppShell.cs Closing 事件攔截"
+            },
+
+            // ── Device 設定 ──
+            new()
+            {
+                Id = 20,
+                Category = "Device",
+                Key = "operation_mode",
+                Value = "IntelliPlex",
+                Description = "裝置運作模式（Combo=雙模式皆啟用, IntelliPlex=僅 IntelliPlex, Custom=僅 Custom）",
+                Remark = "✅ 已實作 — MenuPage.cs 讀取控制功能按鈕啟用狀態"
+            },
+
+            // ── System 設定（續） ──
+            new()
+            {
+                Id = 21,
+                Category = "System",
+                Key = "default_language",
+                Value = "en",
+                Description = "系統預設語系（當未登入或免登入模式時使用，例: en, zh-TW）",
+                Remark = "✅ 已實作 — App.xaml.cs 啟動時初始化 + UserMenuControl 免登入模式切換語系時寫入"
             },
         };
     }

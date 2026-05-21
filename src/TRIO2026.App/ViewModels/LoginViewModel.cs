@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -5,6 +6,7 @@ using System.Windows.Media.Imaging;
 using System.IO;
 using TRIO2026.App.Helpers;
 using TRIO2026.App.Services;
+using TRIO2026.Core.Entities;
 using TRIO2026.Core.Enums;
 
 namespace TRIO2026.App.ViewModels;
@@ -90,6 +92,49 @@ public class LoginViewModel : ViewModelBase
 
     public bool IsTouchScreen { get; }
     public string ScreenInfo { get; }
+
+    // ===== 使用者下拉清單 =====
+
+    private bool _showUserDropdown;
+    /// <summary>是否顯示使用者下拉選單（由 DB 設定控制）</summary>
+    public bool ShowUserDropdown
+    {
+        get => _showUserDropdown;
+        set => SetProperty(ref _showUserDropdown, value);
+    }
+
+    /// <summary>使用者清單（下拉選單資料來源）</summary>
+    public ObservableCollection<User> UserList { get; } = new();
+
+    private User? _selectedUser;
+    /// <summary>下拉選單選中的使用者</summary>
+    public User? SelectedUser
+    {
+        get => _selectedUser;
+        set
+        {
+            if (SetProperty(ref _selectedUser, value) && value != null)
+            {
+                Username = value.Username;
+            }
+        }
+    }
+
+    /// <summary>從 DB 載入使用者清單（供下拉選單使用）</summary>
+    public async Task LoadUsersAsync()
+    {
+        try
+        {
+            var users = await _authService.GetAllUsersAsync();
+            UserList.Clear();
+            foreach (var u in users)
+                UserList.Add(u);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[LoginVM] LoadUsersAsync failed: {ex.Message}");
+        }
+    }
 
     public bool CanLogin => !string.IsNullOrWhiteSpace(Username) &&
                             !string.IsNullOrWhiteSpace(Password) &&

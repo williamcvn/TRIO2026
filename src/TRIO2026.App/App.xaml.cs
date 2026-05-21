@@ -229,8 +229,8 @@ public partial class App : Application
             window.ResizeMode = ResizeMode.NoResize;
             window.SizeToContent = SizeToContent.Manual;
             window.WindowStartupLocation = WindowStartupLocation.Manual;
-            window.Left = 0;
-            window.Top = 0;
+            window.Left = -10000;          // 初始位置在螢幕外，避免嵌入前閃爍
+            window.Top = -10000;
             if (sim.Width > 0) window.Width = sim.Width;
             if (sim.Height > 0) window.Height = sim.Height;
             window.Title = "TRIO2026";

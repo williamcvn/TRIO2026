@@ -61,6 +61,12 @@ public class AuthService
             }
         }
 
+        // 免登入專用帳號（PasswordHash 為空）不允許密碼登入
+        if (string.IsNullOrEmpty(user.PasswordHash))
+        {
+            return (AuthResult.AccountDisabled, null);
+        }
+
         // 驗證密碼
         bool isValid;
         try
@@ -104,12 +110,13 @@ public class AuthService
     }
 
     /// <summary>
-    /// 取得所有使用者（用於帳號下拉選單）
+    /// 取得可登入的使用者清單（排除免登入專用帳號）
     /// </summary>
     public async Task<List<User>> GetAllUsersAsync()
     {
+        _db.ChangeTracker.Clear();
         return await _db.Users
-            .Where(u => u.IsActive == 1)
+            .Where(u => u.IsActive == 1 && u.PasswordHash != "")
             .OrderBy(u => u.Username)
             .ToListAsync();
     }

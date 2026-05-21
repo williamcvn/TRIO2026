@@ -47,15 +47,45 @@ public partial class LoginPage : UserControl
             ? Visibility.Visible
             : Visibility.Collapsed;
 
-        // 載入記住的密碼
-        Loaded += (s, e) =>
+        // 使用者下拉選單（受 DB 控制 — show_user_dropdown）
+        _viewModel.ShowUserDropdown = _settings.ShowUserDropdown;
+
+        // 載入記住的密碼 + 使用者清單
+        Loaded += async (s, e) =>
         {
             if (!string.IsNullOrEmpty(_viewModel.Password))
             {
                 PasswordBox.Password = _viewModel.Password;
             }
-            UsernameBox.Focus();
+
+            if (_viewModel.ShowUserDropdown)
+            {
+                await _viewModel.LoadUsersAsync();
+                // 如果有記住的帳號，自動選中對應的使用者
+                if (!string.IsNullOrEmpty(_viewModel.Username))
+                {
+                    var match = _viewModel.UserList
+                        .FirstOrDefault(u => u.Username == _viewModel.Username);
+                    if (match != null)
+                        _viewModel.SelectedUser = match;
+                }
+                PasswordBox.Focus();
+            }
+            else
+            {
+                UsernameBox.Focus();
+            }
         };
+    }
+
+    /// <summary>下拉選單選擇變更 — 自動聚焦到密碼框</summary>
+    private void UserDropdown_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (UserDropdown.SelectedItem != null)
+        {
+            PasswordBox.Password = ""; // 清除舊密碼
+            PasswordBox.Focus();
+        }
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)

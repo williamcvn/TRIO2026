@@ -8,8 +8,12 @@ namespace TRIO2026.Core.Entities;
 /// 
 /// 設定分類：
 ///   - UserMenu   使用者選單相關設定
-///   - System     系統全域設定
-///   - UI         UI 顯示設定（預留）
+///   - System     系統全域設定（多語系、預設語系）
+///   - EventLog   事件日誌歸檔設定
+///   - LoginUI    登入介面設定
+///   - Auth       認證設定（登入要求、免登入帳號）
+///   - AppClose   關閉控制設定（ESC / Alt+F4 / 按鈕）
+///   - Device     裝置運作模式設定
 /// 
 /// 製作者: Office of William
 /// </summary>

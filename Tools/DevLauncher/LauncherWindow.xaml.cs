@@ -114,7 +114,7 @@ public partial class LauncherWindow : Window
         // 將 WinForms Panel 放入 WindowsFormsHost
         WfHost.Child = _hostPanel;
 
-        _embedTimer.Interval = TimeSpan.FromMilliseconds(200);
+        _embedTimer.Interval = TimeSpan.FromMilliseconds(50);  // 縮短輪詢間隔，加速嵌入
         _embedTimer.Tick += EmbedTimer_Tick;
     }
 

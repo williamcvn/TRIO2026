@@ -172,15 +172,131 @@
                 <TextBlock Text="帳號" FontSize="14"
                            Foreground="{StaticResource TextSecondaryBrush}"
                            Margin="4,0,0,6" />
-                <Border Style="{StaticResource InputBorderStyle}" Margin="0,0,0,16"
-                        x:Name="UsernameBorder">
-                    <TextBox x:Name="UsernameBox"
-                             Style="{StaticResource InnerTextBox}"
-                             Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
-                             TabIndex="0"
-                             GotFocus="InputBox_GotFocus"
-                             LostFocus="InputBox_LostFocus" />
-                </Border>
+
+                <!-- 帳號輸入：文字框 / 下拉選單（互斥顯示） -->
+                <Grid Margin="0,0,0,16">
+                    <!-- 文字輸入框（show_user_dropdown=0 時顯示） -->
+                    <Border Style="{StaticResource InputBorderStyle}"
+                            x:Name="UsernameBorder"
+                            Visibility="{Binding ShowUserDropdown, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+                        <TextBox x:Name="UsernameBox"
+                                 Style="{StaticResource InnerTextBox}"
+                                 Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                 TabIndex="0"
+                                 GotFocus="InputBox_GotFocus"
+                                 LostFocus="InputBox_LostFocus" />
+                    </Border>
+
+                    <!-- 下拉選單（show_user_dropdown=1 時顯示） -->
+                    <Border Style="{StaticResource InputBorderStyle}"
+                            x:Name="UserDropdownBorder"
+                            Visibility="{Binding ShowUserDropdown, Converter={StaticResource BoolToVis}}">
+                        <ComboBox x:Name="UserDropdown"
+                                  ItemsSource="{Binding UserList}"
+                                  SelectedItem="{Binding SelectedUser}"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Foreground="White"
+                                  FontSize="22" FontWeight="SemiBold" FontFamily="Segoe UI"
+                                  VerticalContentAlignment="Center"
+                                  TabIndex="0"
+                                  SelectionChanged="UserDropdown_SelectionChanged">
+
+                            <!-- ComboBox 完整自訂模板：透明底色 + 深色下拉 -->
+                            <ComboBox.Template>
+                                <ControlTemplate TargetType="ComboBox">
+                                    <Grid>
+                                        <!-- 觸控按鈕（透明，不遮擋底色） -->
+                                        <ToggleButton x:Name="ToggleBtn"
+                                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                      Background="Transparent" BorderThickness="0"
+                                                      Focusable="False" ClickMode="Press">
+                                            <ToggleButton.Template>
+                                                <ControlTemplate TargetType="ToggleButton">
+                                                    <Border Background="Transparent">
+                                                        <TextBlock Text="▾" Foreground="#80D8FF"
+                                                                   FontSize="20" FontWeight="Bold"
+                                                                   HorizontalAlignment="Right"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,4,0" />
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </ToggleButton.Template>
+                                        </ToggleButton>
+
+                                        <!-- 選中項顯示區（白色文字，透明底色） -->
+                                        <ContentPresenter x:Name="ContentSite"
+                                                          Content="{TemplateBinding SelectionBoxItem}"
+                                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                          IsHitTestVisible="False"
+                                                          VerticalAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Margin="4,0,24,0" />
+
+                                        <!-- 下拉彈出 -->
+                                        <Popup x:Name="PART_Popup"
+                                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                                               Placement="Bottom"
+                                               AllowsTransparency="True"
+                                               Focusable="False"
+                                               PopupAnimation="Slide">
+                                            <Border Background="#1E2D45"
+                                                    BorderBrush="#4A6A9A" BorderThickness="1"
+                                                    CornerRadius="8" Padding="0,4"
+                                                    MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                                    MinWidth="{TemplateBinding ActualWidth}">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                    <StackPanel IsItemsHost="True" />
+                                                </ScrollViewer>
+                                            </Border>
+                                        </Popup>
+                                    </Grid>
+                                </ControlTemplate>
+                            </ComboBox.Template>
+
+                            <!-- 觸控環境：無 hover 效果 -->
+                            <ComboBox.ItemContainerStyle>
+                                <Style TargetType="ComboBoxItem">
+                                    <Setter Property="Background" Value="#1E2D45" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="Padding" Value="12,10" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ComboBoxItem">
+                                                <Border x:Name="Bd"
+                                                        Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsHighlighted" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#1E2D45" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#2A3D5E" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ComboBox.ItemContainerStyle>
+
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   Foreground="White" FontSize="20" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Username, StringFormat=' ({0})'}"
+                                                   Foreground="#90CAF9" FontSize="15"
+                                                   VerticalAlignment="Center" Margin="6,0,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Border>
+                </Grid>
 
                 <TextBlock Text="密碼" FontSize="14"
                            Foreground="{StaticResource TextSecondaryBrush}"
