@@ -252,6 +252,347 @@ public static class LocalizedStringSeed
         seeds.AddRange(CreateGroup(ref id, "ServiceMode", "Placeholder",
             "This page is under development.", "此頁面功能開發中。", "此页面功能开发中。", "このページは開発中です。"));
 
+        // ══════════════════════════════════════════
+        // ServiceMode 模組 — 功能殼
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "ServiceMode", "MachineSetting",
+            "Machine Setting", "機器設定", "机器设置", "マシン設定"));
+        seeds.AddRange(CreateGroup(ref id, "ServiceMode", "FlowSetting",
+            "Flow Setting", "流程設定", "流程设置", "フロー設定"));
+        seeds.AddRange(CreateGroup(ref id, "ServiceMode", "Communication",
+            "Communication", "通訊設定", "通讯设置", "通信設定"));
+        seeds.AddRange(CreateGroup(ref id, "ServiceMode", "ResetAdminPassword",
+            "Reset Admin Password", "重設管理者密碼", "重设管理者密码", "管理者パスワードリセット"));
+        seeds.AddRange(CreateGroup(ref id, "ServiceMode", "ComingSoonTitle",
+            "Under Development", "功能開發中", "功能开发中", "開発中"));
+        seeds.AddRange(CreateGroup(ref id, "ServiceMode", "ComingSoonMessage",
+            "This feature is under development. Stay tuned.",
+            "此功能正在開發中，敬請期待。",
+            "此功能正在开发中，敬请期待。",
+            "この機能は開発中です。今しばらくお待ちください。"));
+
+        // ══════════════════════════════════════════
+        // UserMenu 模組 — 新增節點
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "UserMenu", "ChangePassword",
+            "Change Password", "變更密碼", "更改密码", "パスワード変更"));
+        seeds.AddRange(CreateGroup(ref id, "UserMenu", "AccountMgmt",
+            "Account Management", "帳號管理", "账号管理", "アカウント管理"));
+
+        // ══════════════════════════════════════════
+        // AccountMgmt 模組 — 帳號管理頁面
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "Title",
+            "Account Management", "帳號管理", "账号管理", "アカウント管理"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "AddAccount",
+            "+ Add Account", "+ 新增帳號", "+ 新增账号", "+ アカウント追加"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SelectPrompt",
+            "Select an account to manage", "請選擇帳號以進行操作", "请选择账号以进行操作", "管理するアカウントを選択"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "Disable",
+            "Disable Account", "停用帳號", "停用账号", "アカウント無効化"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "Enable",
+            "Enable Account", "啟用帳號", "启用账号", "アカウント有効化"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "Delete",
+            "Delete Account", "刪除帳號", "删除账号", "アカウント削除"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "Lock",
+            "Lock Account", "鎖定帳號", "锁定账号", "アカウントロック"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "Unlock",
+            "Unlock Account", "解鎖帳號", "解锁账号", "アカウントロック解除"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ResetPassword",
+            "Reset Password", "重設密碼", "重设密码", "パスワードリセット"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ChangePassword",
+            "Change Password", "變更密碼", "更改密码", "パスワード変更"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ViewDetails",
+            "View Details", "檢視詳細資料", "查看详细资料", "詳細を表示"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "BackToOps",
+            "Back to Operations", "返回操作", "返回操作", "操作に戻る"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "StatusActive",
+            "Active", "啟用", "启用", "有効"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "StatusDisabled",
+            "Disabled", "已停用", "已停用", "無効"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "StatusLocked",
+            "Locked", "已鎖定", "已锁定", "ロック中"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "StatusDeleted",
+            "Deleted", "已刪除", "已删除", "削除済み"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "RoleOperator",
+            "Operator", "操作員", "操作员", "オペレーター"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "RoleService",
+            "Service", "服務工程師", "服务工程师", "サービスエンジニア"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "RoleAdmin",
+            "Admin", "管理員", "管理员", "管理者"));
+
+        // 帳號管理 — 對話框訊息
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "TempPasswordTitle",
+            "Temporary Password", "臨時密碼", "临时密码", "一時パスワード"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "TempPasswordNote",
+            "Please provide this to the user. They will be required to change it on first login.",
+            "請將此密碼提供給使用者。首次登入後系統將強制要求變更密碼。",
+            "请将此密码提供给用户。首次登录后系统将强制要求更改密码。",
+            "このパスワードをユーザーに提供してください。初回ログイン時にパスワード変更が要求されます。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ConfirmDelete",
+            "Are you sure you want to delete this account? This action cannot be undone.",
+            "確定要刪除此帳號？此操作無法復原。",
+            "确定要删除此账号？此操作无法恢复。",
+            "このアカウントを削除しますか？この操作は元に戻せません。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ConfirmDisable",
+            "Are you sure you want to disable this account?",
+            "確定要停用此帳號？",
+            "确定要停用此账号？",
+            "このアカウントを無効にしますか？"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ConfirmEnable",
+            "Are you sure you want to enable this account?",
+            "確定要啟用此帳號？",
+            "确定要启用此账号？",
+            "このアカウントを有効にしますか？"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ConfirmLock",
+            "Locking the account will prevent the user from logging in until manually unlocked.",
+            "鎖定後該使用者將無法登入，直到手動解鎖為止。",
+            "锁定后该用户将无法登录，直到手动解锁为止。",
+            "アカウントをロックすると、手動でロック解除するまでユーザーはログインできません。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ConfirmResetPassword",
+            "Are you sure you want to reset the password for this account?",
+            "確定要重設此帳號的密碼？",
+            "确定要重设此账号的密码？",
+            "このアカウントのパスワードをリセットしますか？"));
+
+        // 帳號管理 — 錯誤訊息
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ErrorSelf",
+            "Cannot perform this action on your own account.",
+            "無法對自己的帳號執行此操作。",
+            "无法对自己的账号执行此操作。",
+            "自分のアカウントに対してこの操作は実行できません。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ErrorLastAdmin",
+            "Cannot remove the last active admin account.",
+            "無法移除最後一個啟用的管理員帳號。",
+            "无法移除最后一个启用的管理员账号。",
+            "最後の有効な管理者アカウントを削除できません。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "UsernameExists",
+            "Username already exists.",
+            "帳號名稱已存在。",
+            "账号名称已存在。",
+            "ユーザー名は既に存在します。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "InvalidUsername",
+            "Username must be 3-20 alphanumeric characters or underscores.",
+            "帳號名稱須為 3~20 個英數字或底線。",
+            "账号名称须为 3~20 个英数字或下划线。",
+            "ユーザー名は3～20文字の英数字またはアンダースコアである必要があります。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SuccessCreated",
+            "Account created successfully.",
+            "帳號建立成功。",
+            "账号创建成功。",
+            "アカウントが正常に作成されました。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SuccessDeleted",
+            "Account deleted successfully.",
+            "帳號已刪除。",
+            "账号已删除。",
+            "アカウントが削除されました。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SuccessDisabled",
+            "Account disabled successfully.",
+            "帳號已停用。",
+            "账号已停用。",
+            "アカウントが無効化されました。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SuccessEnabled",
+            "Account enabled successfully.",
+            "帳號已啟用。",
+            "账号已启用。",
+            "アカウントが有効化されました。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SuccessLocked",
+            "Account locked successfully.",
+            "帳號已鎖定。",
+            "账号已锁定。",
+            "アカウントがロックされました。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SuccessUnlocked",
+            "Account unlocked successfully.",
+            "帳號已解鎖。",
+            "账号已解锁。",
+            "アカウントのロックが解除されました。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SuccessPasswordReset",
+            "Password has been reset.",
+            "密碼已重設。",
+            "密码已重设。",
+            "パスワードがリセットされました。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ErrorServiceDelete",
+            "Service accounts cannot be deleted from the UI.",
+            "Service 帳號無法從介面刪除。",
+            "Service 账号无法从界面删除。",
+            "サービスアカウントはUIから削除できません。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ErrorServiceAdd",
+            "Service accounts are managed by IT/DB directly.",
+            "Service 帳號由 IT/DB 直接管理。",
+            "Service 账号由 IT/DB 直接管理。",
+            "サービスアカウントはIT/DBで直接管理されます。"));
+
+        // 帳號管理 — 新增帳號 Overlay
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "CreateTitle",
+            "Create Account", "新增帳號", "新增账号", "アカウント作成"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "LabelUsername",
+            "Username", "帳號名稱", "账号名称", "ユーザー名"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "LabelDisplayName",
+            "Display Name", "顯示名稱", "显示名称", "表示名"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "LabelRole",
+            "Role", "角色", "角色", "ロール"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ServiceNotice",
+            "Service accounts are managed by IT/DB directly.",
+            "ℹ️ Service 帳號由 IT/DB 直接管理",
+            "ℹ️ Service 账号由 IT/DB 直接管理",
+            "ℹ️ サービスアカウントはIT/DBで直接管理"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "InitPasswordNotice",
+            "Initial password will be generated and displayed once.",
+            "初始密碼由系統隨機產生並顯示一次。",
+            "初始密码由系统随机生成并显示一次。",
+            "初期パスワードはシステムが自動生成し、一度だけ表示されます。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "CreateButton",
+            "Create", "建立", "创建", "作成"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "TempPasswordCopied",
+            "I have recorded, close", "我已記錄，關閉", "我已记录，关闭", "記録しました、閉じる"));
+
+        // 帳號管理 — 檢視詳細資料欄位標籤
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailUsername",
+            "Username", "帳號名稱", "账号名称", "ユーザー名"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailDisplayName",
+            "Display Name", "顯示名稱", "显示名称", "表示名"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailRole",
+            "Role Level", "角色等級", "角色等级", "ロールレベル"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailStatus",
+            "Status", "狀態", "状态", "ステータス"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailEmployeeId",
+            "Employee ID", "員工編號", "员工编号", "従業員ID"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailDepartment",
+            "Department", "部門", "部门", "部門"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailEmail",
+            "Email", "電子郵件", "电子邮件", "メール"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailLastLogin",
+            "Last Login", "最後登入", "最后登录", "最終ログイン"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailPasswordChanged",
+            "Password Changed", "密碼變更時間", "密码更改时间", "パスワード変更日時"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailForceChange",
+            "Force Password Change", "強制變更密碼", "强制更改密码", "パスワード変更を強制"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailLockedUntil",
+            "Locked Until", "鎖定至", "锁定至", "ロック期限"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailFailedCount",
+            "Failed Login Count", "失敗次數", "失败次数", "ログイン失敗回数"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailCreated",
+            "Created", "建立時間", "创建时间", "作成日時"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailCreatedBy",
+            "Created By", "建立者", "创建者", "作成者"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "DetailNotes",
+            "Notes", "備註", "备注", "備考"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "NotLocked",
+            "Not Locked", "未鎖定", "未锁定", "ロックなし"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "None",
+            "None", "無", "无", "なし"));
+
+        // ══════════════════════════════════════════
+        // Login 模組 — 登入頁錯誤訊息
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "Login", "InvalidCredentials",
+            "Invalid username or password.",
+            "帳號或密碼錯誤。",
+            "账号或密码错误。",
+            "ユーザー名またはパスワードが正しくありません。"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "AccountDisabled",
+            "This account has been disabled. Please contact your administrator.",
+            "此帳號已停用，請聯絡管理員。",
+            "此账号已停用，请联系管理员。",
+            "このアカウントは無効です。管理者にお問い合わせください。"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "AccountLocked",
+            "Account is locked. Please try again later.",
+            "帳號已鎖定，請稍後再試。",
+            "账号已锁定，请稍后再试。",
+            "アカウントがロックされています。しばらくしてから再試行してください。"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "SystemError",
+            "System error",
+            "系統錯誤",
+            "系统错误",
+            "システムエラー"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "Username",
+            "Username", "帳號", "账号", "ユーザー名"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "Password",
+            "Password", "密碼", "密码", "パスワード"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "RememberPassword",
+            "Remember Password", "記住密碼", "记住密码", "パスワードを記憶"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "Submit",
+            "Login", "登　入", "登　录", "ログイン"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "Close",
+            "Close Application", "關閉應用程式", "关闭应用程序", "アプリを閉じる"));
+
+        // ══════════════════════════════════════════
+        // PasswordUI 模組 — 密碼變更 Overlay
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "Title",
+            "Change Password", "變更密碼", "更改密码", "パスワード変更"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "Subtitle",
+            "Please enter a new password to complete the change.",
+            "請輸入新密碼以完成變更。",
+            "请输入新密码以完成更改。",
+            "新しいパスワードを入力して変更を完了してください。"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "ForceSubtitle",
+            "You must change your password before proceeding.",
+            "您必須先變更密碼才能繼續操作。",
+            "您必须先更改密码才能继续操作。",
+            "続行する前にパスワードを変更する必要があります。"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "CurrentPassword",
+            "Current Password", "當前密碼", "当前密码", "現在のパスワード"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "NewPassword",
+            "New Password", "新密碼", "新密码", "新しいパスワード"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "ConfirmPassword",
+            "Confirm Password", "確認密碼", "确认密码", "パスワード確認"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "Submit",
+            "Change Password", "確認變更", "确认更改", "パスワード変更"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "PasswordMismatch",
+            "Passwords do not match.",
+            "兩次密碼不一致。",
+            "两次密码不一致。",
+            "パスワードが一致しません。"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "SamePassword",
+            "New password cannot be the same as current password.",
+            "新密碼不可與當前密碼相同。",
+            "新密码不可与当前密码相同。",
+            "新しいパスワードは現在のパスワードと同じにできません。"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "SuccessTitle",
+            "Password Changed", "密碼已變更", "密码已更改", "パスワード変更完了"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "SuccessMessage",
+            "Your password has been updated successfully.",
+            "密碼已成功更新。",
+            "密码已成功更新。",
+            "パスワードが正常に更新されました。"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "ForceSuccessMessage",
+            "Password changed. Please log in again with your new password.",
+            "密碼已變更，請以新密碼重新登入。",
+            "密码已更改，请以新密码重新登录。",
+            "パスワードが変更されました。新しいパスワードで再ログインしてください。"));
+
+        // PasswordUI — 即時驗證規則提示
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "RuleMinLength",
+            "At least {0} characters", "至少 {0} 碼", "至少 {0} 位", "最低{0}文字"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "RuleMaxLength",
+            "No more than {0} characters", "不超過 {0} 碼", "不超过 {0} 位", "{0}文字以内"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "RuleRequireMixed",
+            "Contains letters and numbers", "包含英文字母與數字", "包含英文字母与数字", "英字と数字を含む"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "RuleRequireUpper",
+            "Contains uppercase letter", "包含大寫字母", "包含大写字母", "大文字を含む"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "RuleRequireLower",
+            "Contains lowercase letter", "包含小寫字母", "包含小写字母", "小文字を含む"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "RuleRequireDigit",
+            "Contains a number", "包含數字", "包含数字", "数字を含む"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "RuleRequireSpecial",
+            "Contains special character", "包含特殊符號", "包含特殊符号", "特殊文字を含む"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "WrongCurrentPassword",
+            "Current password is incorrect.",
+            "當前密碼錯誤。",
+            "当前密码错误。",
+            "現在のパスワードが正しくありません。"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "PasswordEmpty",
+            "Password cannot be empty.",
+            "密碼不可為空。",
+            "密码不能为空。",
+            "パスワードを入力してください。"));
+        seeds.AddRange(CreateGroup(ref id, "PasswordUI", "BCryptLimit",
+            "Password must not exceed 72 characters.",
+            "密碼不可超過 72 個字元。",
+            "密码不能超过 72 个字符。",
+            "パスワードは72文字以内で入力してください。"));
+
         return seeds;
     }
 

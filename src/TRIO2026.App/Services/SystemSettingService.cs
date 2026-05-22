@@ -102,6 +102,28 @@ public class SystemSettingService
         set => SetLiveString("System", "default_language", value);
     }
 
+    /// <summary>
+    /// 登入/首頁畫面的語系決定方式
+    ///   - "last_user"：依據前一位使用者語系
+    ///   - "fixed"：統一使用 DefaultLanguage
+    /// </summary>
+    public string LoginScreenLanguageMode
+        => GetLiveString("System", "login_screen_language_mode", "last_user");
+
+    /// <summary>
+    /// 最後一位登入使用者的語系偏好
+    /// 登入成功時自動寫入，App 重啟時讀取以決定登入頁語系
+    /// </summary>
+    public string? LastUserLanguage
+    {
+        get
+        {
+            var val = GetLiveString("System", "last_user_language", "");
+            return string.IsNullOrEmpty(val) ? null : val;
+        }
+        set => SetLiveString("System", "last_user_language", value ?? "");
+    }
+
     // ═══════════════════════════════════════
     // EventLog 歸檔設定
     // ═══════════════════════════════════════
@@ -242,4 +264,83 @@ public class SystemSettingService
     /// <summary>免登入時顯示的名稱（預設 Local Operator）</summary>
     public string GuestAccountDisplayName
         => GetLiveString("Auth", "guest_account_display_name", "Local Operator");
+
+    // ═══════════════════════════════════════
+    // Device 設定
+    // ═══════════════════════════════════════
+
+    /// <summary>
+    /// 裝置運作模式（Combo / IntelliPlex / Custom）
+    /// 無法辨識的值一律 fallback 為 IntelliPlex
+    /// </summary>
+    public string DeviceOperationMode
+    {
+        get
+        {
+            var val = GetLiveString("Device", "operation_mode", "IntelliPlex");
+            return val switch
+            {
+                "Combo" => "Combo",
+                "IntelliPlex" => "IntelliPlex",
+                "Custom" => "Custom",
+                _ => "IntelliPlex"   // 無法辨識 → 預設
+            };
+        }
+    }
+
+    // ═══════════════════════════════════════
+    // PasswordPolicy 設定（密碼原則）
+    // ═══════════════════════════════════════
+
+    /// <summary>密碼原則是否啟用</summary>
+    public bool PasswordPolicyEnabled
+        => GetLiveString("PasswordPolicy", "enabled", "1") == "1";
+
+    /// <summary>Operator 最短密碼長度</summary>
+    public int OperatorMinLength
+        => GetLiveInt("PasswordPolicy", "operator_min_length", 6);
+
+    /// <summary>Operator 最大密碼長度</summary>
+    public int OperatorMaxLength
+        => GetLiveInt("PasswordPolicy", "operator_max_length", 20);
+
+    /// <summary>Operator 是否要求英數混合（0=允許純數字）</summary>
+    public bool OperatorRequireMixed
+        => GetLiveString("PasswordPolicy", "operator_require_mixed", "0") == "1";
+
+    /// <summary>Operator 是否要求含特殊符號</summary>
+    public bool OperatorRequireSpecial
+        => GetLiveString("PasswordPolicy", "operator_require_special", "0") == "1";
+
+    /// <summary>Admin/Service 最短密碼長度</summary>
+    public int AdminMinLength
+        => GetLiveInt("PasswordPolicy", "admin_min_length", 10);
+
+    /// <summary>Admin/Service 最大密碼長度</summary>
+    public int AdminMaxLength
+        => GetLiveInt("PasswordPolicy", "admin_max_length", 64);
+
+    /// <summary>Admin/Service 是否要求含大寫字母</summary>
+    public bool AdminRequireUpper
+        => GetLiveString("PasswordPolicy", "admin_require_upper", "1") == "1";
+
+    /// <summary>Admin/Service 是否要求含小寫字母</summary>
+    public bool AdminRequireLower
+        => GetLiveString("PasswordPolicy", "admin_require_lower", "1") == "1";
+
+    /// <summary>Admin/Service 是否要求含數字</summary>
+    public bool AdminRequireDigit
+        => GetLiveString("PasswordPolicy", "admin_require_digit", "1") == "1";
+
+    /// <summary>Admin/Service 是否要求含特殊符號</summary>
+    public bool AdminRequireSpecial
+        => GetLiveString("PasswordPolicy", "admin_require_special", "0") == "1";
+
+    // ═══════════════════════════════════════
+    // AccountMgmt 設定
+    // ═══════════════════════════════════════
+
+    /// <summary>是否啟用帳號手動鎖定/解鎖功能（控制 UI 按鈕可見性）</summary>
+    public bool AccountLockEnabled
+        => GetLiveString("AccountMgmt", "account_lock_enabled", "0") == "1";
 }

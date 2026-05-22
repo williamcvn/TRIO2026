@@ -88,4 +88,15 @@ public class User
 
     /// <summary>個人語系偏好 (e.g., "zh-TW", "en")</summary>
     public string? LanguagePreference { get; set; }
+
+    // ── 假刪除（Soft Delete） ──
+
+    /// <summary>是否已刪除（軟刪除）：0=正常, 1=已刪除</summary>
+    public int IsDeleted { get; set; } = 0;
+
+    /// <summary>刪除時間（ISO8601），null 表示未刪除</summary>
+    public string? DeletedAt { get; set; }
+
+    /// <summary>刪除操作者帳號名稱</summary>
+    public string? DeletedBy { get; set; }
 }

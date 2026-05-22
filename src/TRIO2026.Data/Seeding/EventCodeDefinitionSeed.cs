@@ -130,11 +130,11 @@ public static class EventCodeDefinitionSeed
             },
             new()
             {
-                Id = 23, Code = "WRN-3004", Category = "UV", Severity = "Warning",
+                Id = 23, Code = "ERR-3004", Category = "UV", Severity = "Error",
                 Title = "UV Door Interrupted",
                 Description = "UV 照射期間門板被開啟，照射暫停",
                 Resolution = "關閉門板後照射將自動恢復",
-                UserMessageKey = "Error.WRN-3004",
+                UserMessageKey = "Error.ERR-3004",
                 UserMessageFallback = "Door opened during UV operation. Close the door to resume."
             },
             new()
@@ -190,6 +190,138 @@ public static class EventCodeDefinitionSeed
                 Id = 50, Code = "INF-6001", Category = "Navigation", Severity = "Info",
                 Title = "Page Navigation",
                 Description = "頁面導航事件",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+
+            // ══════════════════════════════════
+            // 2xxx — Auth 擴充
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 51, Code = "INF-2004", Category = "Auth", Severity = "Info",
+                Title = "Service Mode Login",
+                Description = "使用者透過身分驗證進入 Service Mode",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 52, Code = "INF-2005", Category = "Auth", Severity = "Info",
+                Title = "Exit Service Mode",
+                Description = "使用者退出 Service Mode",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 53, Code = "INF-2006", Category = "Auth", Severity = "Info",
+                Title = "Force Password Change",
+                Description = "使用者完成強制密碼變更",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 54, Code = "INF-2007", Category = "Auth", Severity = "Info",
+                Title = "Password Changed",
+                Description = "使用者自主變更密碼",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 55, Code = "WRN-2008", Category = "Auth", Severity = "Warning",
+                Title = "Password Change Failed",
+                Description = "密碼變更失敗（原密碼錯誤或不符原則）",
+                Resolution = "確認原密碼正確，新密碼符合密碼原則",
+                UserMessageKey = null, UserMessageFallback = null
+            },
+
+            // ══════════════════════════════════
+            // 7xxx — UI / Interaction
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 60, Code = "INF-7001", Category = "UI", Severity = "Info",
+                Title = "Button Click",
+                Description = "使用者點擊按鈕（稽核追蹤）",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 61, Code = "INF-7002", Category = "UI", Severity = "Info",
+                Title = "Menu Action",
+                Description = "使用者操作選單（開啟/關閉）",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 62, Code = "INF-7003", Category = "UI", Severity = "Info",
+                Title = "User Input",
+                Description = "使用者輸入欄位內容（稽核追蹤）",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+
+            // ══════════════════════════════════
+            // 8xxx — Account Management
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 70, Code = "INF-8001", Category = "AccountMgmt", Severity = "Info",
+                Title = "Account Created",
+                Description = "Admin 新增使用者帳號",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 71, Code = "INF-8002", Category = "AccountMgmt", Severity = "Info",
+                Title = "Account Deleted",
+                Description = "Admin 刪除使用者帳號（假刪除）",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 72, Code = "INF-8003", Category = "AccountMgmt", Severity = "Info",
+                Title = "Account Disabled",
+                Description = "Admin 停用使用者帳號",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 73, Code = "INF-8004", Category = "AccountMgmt", Severity = "Info",
+                Title = "Account Enabled",
+                Description = "Admin 啟用使用者帳號",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 74, Code = "INF-8005", Category = "AccountMgmt", Severity = "Info",
+                Title = "Account Locked",
+                Description = "Admin 手動鎖定使用者帳號",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 75, Code = "INF-8006", Category = "AccountMgmt", Severity = "Info",
+                Title = "Account Unlocked",
+                Description = "Admin 手動解鎖使用者帳號",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 76, Code = "INF-8007", Category = "AccountMgmt", Severity = "Info",
+                Title = "Password Reset",
+                Description = "Admin 重設使用者密碼",
                 Resolution = null,
                 UserMessageKey = null, UserMessageFallback = null
             },

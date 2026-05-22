@@ -10,10 +10,10 @@
 
         <!-- 登入卡片 -->
         <Border x:Name="DialogCard"
-                MaxWidth="380" MinWidth="300"
+                MaxWidth="460" MinWidth="380"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
-                CornerRadius="16"
-                Padding="28,24"
+                CornerRadius="20"
+                Padding="36,32"
                 Margin="32">
             <Border.Background>
                 <SolidColorBrush Color="#1E2D45" Opacity="0.97" />
@@ -30,12 +30,12 @@
 
             <StackPanel>
                 <!-- 圖示 -->
-                <TextBlock Text="🔐" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8" />
+                <TextBlock Text="🔐" FontSize="42" HorizontalAlignment="Center" Margin="0,0,0,10" />
 
                 <!-- 標題 -->
                 <TextBlock x:Name="TitleText"
                            Text="身分驗證"
-                           FontSize="20" FontWeight="SemiBold"
+                           FontSize="24" FontWeight="SemiBold"
                            Foreground="White"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,4" />
@@ -43,41 +43,41 @@
                 <!-- 說明 -->
                 <TextBlock x:Name="SubtitleText"
                            Text="請輸入帳號密碼以進行身分確認"
-                           FontSize="13"
+                           FontSize="15"
                            Foreground="#78909C"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,20" />
 
                 <!-- 帳號輸入框 -->
-                <Border Background="#354B70" CornerRadius="10"
+                <Border Background="#354B70" CornerRadius="12"
                         BorderBrush="#4A6A9A" BorderThickness="1"
-                        Height="48" Margin="0,0,0,10" Padding="14,0">
+                        Height="56" Margin="0,0,0,12" Padding="14,0">
                     <TextBox x:Name="UsernameBox"
                              Background="Transparent"
                              BorderThickness="0"
                              Foreground="#F0F4F8"
                              CaretBrush="#80D8FF"
-                             FontSize="16" FontFamily="Segoe UI"
+                             FontSize="20" FontFamily="Segoe UI"
                              VerticalContentAlignment="Center" />
                 </Border>
 
                 <!-- 密碼輸入框 -->
-                <Border Background="#354B70" CornerRadius="10"
+                <Border Background="#354B70" CornerRadius="12"
                         BorderBrush="#4A6A9A" BorderThickness="1"
-                        Height="48" Margin="0,0,0,6" Padding="14,0">
+                        Height="56" Margin="0,0,0,8" Padding="14,0">
                     <PasswordBox x:Name="PasswordBox"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Foreground="#F0F4F8"
                                  CaretBrush="#80D8FF"
-                                 FontSize="16" FontFamily="Segoe UI"
+                                 FontSize="20" FontFamily="Segoe UI"
                                  VerticalContentAlignment="Center" />
                 </Border>
 
                 <!-- 錯誤訊息 -->
                 <TextBlock x:Name="ErrorText"
                            Text=""
-                           FontSize="13"
+                           FontSize="15"
                            Foreground="#EF5350"
                            HorizontalAlignment="Center"
                            Margin="0,4,0,16"
@@ -87,8 +87,8 @@
                 <Button x:Name="ConfirmButton"
                         Content="驗證"
                         Click="ConfirmButton_Click"
-                        Width="240" Height="48"
-                        FontSize="16" FontWeight="SemiBold"
+                        Width="300" Height="56"
+                        FontSize="18" FontWeight="SemiBold"
                         Foreground="White"
                         BorderThickness="0"
                         Cursor="Hand"
@@ -113,8 +113,8 @@
                 <Button x:Name="CancelButton"
                         Content="取消"
                         Click="CancelButton_Click"
-                        Width="240" Height="48"
-                        FontSize="16"
+                        Width="300" Height="52"
+                        FontSize="17"
                         Foreground="#78909C"
                         Background="Transparent"
                         BorderThickness="0"

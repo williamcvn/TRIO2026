@@ -35,6 +35,9 @@
                                 <Setter TargetName="CardBorder" Property="BorderBrush" Value="#64B5F6" />
                                 <Setter TargetName="CardBorder" Property="BorderThickness" Value="2" />
                             </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="CardBorder" Property="Opacity" Value="0.35" />
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -89,7 +92,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource MenuButton}" Click="OnIntelliPlexClick">
+            <Button x:Name="BtnIntelliPlex" Grid.Row="0" Grid.Column="0" Style="{StaticResource MenuButton}" Click="OnIntelliPlexClick">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="🧬" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,8" />
                     <TextBlock Text="{Binding [Menu.IntelliPlex], Source={x:Static svc:LocalizationService.Instance}}"
@@ -101,7 +104,7 @@
                 </StackPanel>
             </Button>
 
-            <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource MenuButton}" Click="OnCustomClick">
+            <Button x:Name="BtnCustom" Grid.Row="0" Grid.Column="1" Style="{StaticResource MenuButton}" Click="OnCustomClick">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="🧪" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,8" />
                     <TextBlock Text="{Binding [Menu.Custom], Source={x:Static svc:LocalizationService.Instance}}"

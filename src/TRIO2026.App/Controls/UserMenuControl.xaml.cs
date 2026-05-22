@@ -34,6 +34,8 @@ public partial class UserMenuControl : UserControl
     private LoginOverlay? _loginOverlay;
     private AuthService? _authService;
     private TokenService? _tokenService;
+    private ChangePasswordOverlay? _changePasswordOverlay;
+    private PasswordPolicyService? _policyService;
 
     /// <summary>自動關閉計時器</summary>
     private readonly DispatcherTimer _autoCloseTimer;
@@ -100,7 +102,9 @@ public partial class UserMenuControl : UserControl
         LoginOverlay loginOverlay,
         AuthService authService,
         TokenService tokenService,
-        SystemSettingService? systemSettings = null)
+        SystemSettingService? systemSettings = null,
+        ChangePasswordOverlay? changePasswordOverlay = null,
+        PasswordPolicyService? policyService = null)
     {
         _sessionService = sessionService;
         _dialogOverlay = dialogOverlay;
@@ -108,6 +112,12 @@ public partial class UserMenuControl : UserControl
         _authService = authService;
         _tokenService = tokenService;
         _systemSettings = systemSettings;
+        _changePasswordOverlay = changePasswordOverlay;
+        _policyService = policyService;
+
+        // 初始化 ChangePasswordOverlay 服務
+        if (_changePasswordOverlay != null && _authService != null && _policyService != null)
+            _changePasswordOverlay.Initialize(_authService, _policyService);
 
         // 從 DB 讀取自動關閉秒數
         if (_systemSettings != null)
@@ -162,6 +172,15 @@ public partial class UserMenuControl : UserControl
                 // 隱藏 Service Mode 按鈕（登入模式不需要）
                 BtnServiceMode.Visibility = Visibility.Collapsed;
                 ServiceModeSeparator.Visibility = Visibility.Collapsed;
+
+                // 變更密碼：登入模式一律顯示（所有登入角色都需要能改密碼）
+                BtnChangePassword.Visibility = Visibility.Visible;
+                ChangePasswordSeparator.Visibility = Visibility.Visible;
+
+                // 帳號管理：僅 Admin 可見
+                var isAdmin = _sessionService.CurrentRole == RoleLevel.Admin;
+                BtnAccountMgmt.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+                AccountMgmtSeparator.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
 
                 // Home 按鈕：Service 角色或 ShowHomeButton=False 時隱藏
                 if (_sessionService.CurrentRole == RoleLevel.Service || !ShowHomeButton)
@@ -328,6 +347,41 @@ public partial class UserMenuControl : UserControl
         }
     }
 
+    /// <summary>變更密碼</summary>
+    private async void OnChangePasswordClick(object sender, RoutedEventArgs e)
+    {
+        CloseAllOverlays();
+        EventLogService.Instance.LogButtonClick("UserMenu", "ChangePassword");
+
+        if (_sessionService?.CurrentUser == null) return;
+
+        var shell = Window.GetWindow(this) as AppShell;
+        if (shell == null) return;
+
+        var user = _sessionService.CurrentUser;
+        var success = await shell.ShowChangePasswordAsync(user.Id, user.RoleLevel);
+
+        if (success && _dialogOverlay != null)
+        {
+            var loc = LocalizationService.Instance;
+            await _dialogOverlay.ShowAsync(
+                loc["PasswordUI.SuccessTitle"],
+                loc["PasswordUI.SuccessMessage"],
+                loc["Common.OK"],
+                OverlayDialogIcon.Success);
+        }
+    }
+
+    /// <summary>帳號管理 — 導向 AccountManagementPage</summary>
+    private void OnAccountMgmtClick(object sender, RoutedEventArgs e)
+    {
+        CloseAllOverlays();
+        EventLogService.Instance.LogButtonClick("UserMenu", "AccountMgmt");
+
+        var shell = Window.GetWindow(this) as AppShell;
+        shell?.NavigateTo("accountMgmt");
+    }
+
     /// <summary>切換語系按鈕</summary>
     private void OnSwitchLanguageClick(object sender, RoutedEventArgs e)
     {
@@ -349,6 +403,10 @@ public partial class UserMenuControl : UserControl
                 // 登入模式：將語系偏好寫入帳號設定
                 await _authService.UpdateLanguagePreferenceAsync(_sessionService.CurrentUser.Id, langCode);
                 _sessionService.CurrentUser.LanguagePreference = langCode; // 同步記憶體
+
+                // 同步更新 LastUserLanguage（供 App 重啟時使用）
+                if (_systemSettings != null)
+                    _systemSettings.LastUserLanguage = langCode;
             }
             else if (_systemSettings != null)
             {
@@ -392,6 +450,7 @@ public partial class UserMenuControl : UserControl
                     case 0:
                         EventLogService.Instance.LogAuth("Logout",
                             _sessionService?.CurrentUser?.Username, true);
+                        await shell.ApplyLoginScreenLanguageAsync();
                         _sessionService?.ClearSession();
                         shell.NavigateTo("login");
                         break;
@@ -415,6 +474,7 @@ public partial class UserMenuControl : UserControl
                 {
                     EventLogService.Instance.LogAuth("Logout",
                         _sessionService?.CurrentUser?.Username, true);
+                    await shell.ApplyLoginScreenLanguageAsync();
                     _sessionService?.ClearSession();
                     shell.NavigateTo("login");
                 }

@@ -97,6 +97,8 @@ public partial class App : Application
             services.AddSingleton<TokenService>();
             services.AddSingleton<SystemSettingService>();
             services.AddTransient<AuthService>();
+            services.AddTransient<PasswordPolicyService>();
+            services.AddTransient<AccountManagementService>();
 
             // UV 相關服務
             services.AddSingleton<UvConfigService>();
@@ -112,7 +114,35 @@ public partial class App : Application
             {
                 scope.ServiceProvider.GetRequiredService<SystemConfigDbContext>().Database.Migrate();
                 scope.ServiceProvider.GetRequiredService<EventLogDbContext>().Database.Migrate();
-                scope.ServiceProvider.GetRequiredService<AppMainDbContext>().Database.Migrate();
+
+                var mainDb = scope.ServiceProvider.GetRequiredService<AppMainDbContext>();
+                mainDb.Database.Migrate();
+
+                // Schema auto-repair: 確保 User 表有 IsDeleted / DeletedAt / DeletedBy 欄位
+                var conn = mainDb.Database.GetDbConnection();
+                if (conn.State != System.Data.ConnectionState.Open) conn.Open();
+                using var pragmaCmd = conn.CreateCommand();
+                pragmaCmd.CommandText = "PRAGMA table_info(User)";
+                var existingCols = new HashSet<string>();
+                using (var reader = pragmaCmd.ExecuteReader())
+                {
+                    while (reader.Read()) existingCols.Add(reader.GetString(1));
+                }
+                var repairs = new Dictionary<string, string>
+                {
+                    ["IsDeleted"] = "ALTER TABLE User ADD COLUMN IsDeleted INTEGER NOT NULL DEFAULT 0",
+                    ["DeletedAt"] = "ALTER TABLE User ADD COLUMN DeletedAt TEXT",
+                    ["DeletedBy"] = "ALTER TABLE User ADD COLUMN DeletedBy TEXT"
+                };
+                foreach (var (col, sql) in repairs)
+                {
+                    if (!existingCols.Contains(col))
+                    {
+                        using var cmd = conn.CreateCommand();
+                        cmd.CommandText = sql;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
             }
 
             // 初始化事件日誌服務
@@ -132,7 +162,29 @@ public partial class App : Application
 
             // 初始化多語系服務（受 DB 開關控制）
             var locService = _serviceProvider.GetRequiredService<LocalizationService>();
-            var defaultLang = sysSettings.MultiLanguageEnabled ? sysSettings.DefaultLanguage : "en";
+            string defaultLang;
+            if (!sysSettings.MultiLanguageEnabled)
+            {
+                defaultLang = "en";
+            }
+            else if (sysSettings.LoginRequired)
+            {
+                // 需要登入 → 根據 login_screen_language_mode 決定登入頁語系
+                if (sysSettings.LoginScreenLanguageMode == "last_user")
+                    defaultLang = sysSettings.LastUserLanguage ?? sysSettings.DefaultLanguage;
+                else
+                    defaultLang = sysSettings.DefaultLanguage;
+            }
+            else
+            {
+                // 不需要登入 → 讀取 local_operator 的語系偏好
+                defaultLang = GetGuestUserLanguage(sysSettings) ?? sysSettings.DefaultLanguage;
+            }
+            var langDebug = $"[{DateTime.Now:HH:mm:ss}] MultiLang={sysSettings.MultiLanguageEnabled}, " +
+                $"LoginRequired={sysSettings.LoginRequired}, Mode={sysSettings.LoginScreenLanguageMode}, " +
+                $"LastUserLang={sysSettings.LastUserLanguage ?? "(null)"}, DefaultLang={sysSettings.DefaultLanguage}, " +
+                $"Result={defaultLang}";
+            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "language_debug.txt"), langDebug);
             locService.InitializeAsync(defaultLang).GetAwaiter().GetResult();
 
             // 解析模擬器參數
@@ -242,6 +294,25 @@ public partial class App : Application
             window.Height = sim.Height;
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.Title = $"TRIO2026 — 模擬模式 ({sim.Width}×{sim.Height}{(sim.Touch ? " 觸控" : "")})";
+        }
+    }
+
+    /// <summary>
+    /// 查詢免登入帳號（local_operator）的語系偏好
+    /// </summary>
+    private string? GetGuestUserLanguage(SystemSettingService sysSettings)
+    {
+        try
+        {
+            using var scope = _serviceProvider!.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppMainDbContext>();
+            var username = sysSettings.GuestAccountUsername;
+            var user = db.Users.FirstOrDefault(u => u.Username == username);
+            return string.IsNullOrEmpty(user?.LanguagePreference) ? null : user.LanguagePreference;
+        }
+        catch
+        {
+            return null;
         }
     }
 }

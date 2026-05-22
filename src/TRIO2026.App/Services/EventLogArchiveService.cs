@@ -66,7 +66,7 @@ public class EventLogArchiveService
                 Console.WriteLine($"[EventLogArchive] ✅ 歸檔完成: {periodLabel}");
 
                 EventLogService.Instance?.LogInfo("System", "EventLogArchive",
-                    ErrorCodes.AppStartup, $"事件日誌歸檔完成: {periodLabel}");
+                    null, $"事件日誌歸檔完成: {periodLabel}");
             }
             else
             {

@@ -50,6 +50,9 @@ public partial class LoginPage : UserControl
         // 使用者下拉選單（受 DB 控制 — show_user_dropdown）
         _viewModel.ShowUserDropdown = _settings.ShowUserDropdown;
 
+        // 多語系
+        ApplyLocalization();
+
         // 載入記住的密碼 + 使用者清單
         Loaded += async (s, e) =>
         {
@@ -76,6 +79,22 @@ public partial class LoginPage : UserControl
                 UsernameBox.Focus();
             }
         };
+    }
+
+    /// <summary>刷新多語系與 UI 顯示</summary>
+    public void RefreshDisplay()
+    {
+        ApplyLocalization();
+    }
+
+    private void ApplyLocalization()
+    {
+        var loc = LocalizationService.Instance;
+        LblUsername.Text = loc["Login.Username"];
+        LblPassword.Text = loc["Login.Password"];
+        ChkRemember.Content = loc["Login.RememberPassword"];
+        BtnLogin.Content = loc["Login.Submit"];
+        CloseButton.ToolTip = loc["Login.Close"];
     }
 
     /// <summary>下拉選單選擇變更 — 自動聚焦到密碼框</summary>

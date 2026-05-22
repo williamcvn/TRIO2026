@@ -97,6 +97,56 @@
                     </Button>
                     <Border x:Name="ServiceModeSeparator" Height="1" Background="#2A3D5E" Margin="8,4"
                             Visibility="Collapsed"/>
+                    <!-- 變更密碼（僅登入模式可見） -->
+                    <Button x:Name="BtnChangePassword" Click="OnChangePasswordClick" Cursor="Hand"
+                            Visibility="Collapsed">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="20,16">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🔑" FontSize="22" VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"/>
+                                        <TextBlock Text="{Binding [UserMenu.ChangePassword], Source={x:Static svc:LocalizationService.Instance}}"
+                                                   FontSize="17"
+                                                   Foreground="#F0F4F8" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Border x:Name="ChangePasswordSeparator" Height="1" Background="#2A3D5E" Margin="8,4"
+                            Visibility="Collapsed"/>
+                    <!-- 帳號管理（僅 Admin 登入模式可見） -->
+                    <Button x:Name="BtnAccountMgmt" Click="OnAccountMgmtClick" Cursor="Hand"
+                            Visibility="Collapsed">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="Transparent"
+                                        CornerRadius="8" Padding="20,16">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="👥" FontSize="22" VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"/>
+                                        <TextBlock Text="{Binding [UserMenu.AccountMgmt], Source={x:Static svc:LocalizationService.Instance}}"
+                                                   FontSize="17"
+                                                   Foreground="#F0F4F8" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#3A5A8A"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Border x:Name="AccountMgmtSeparator" Height="1" Background="#2A3D5E" Margin="8,4"
+                            Visibility="Collapsed"/>
                     <!-- 切換語系 -->
                     <Button x:Name="BtnSwitchLanguage" Click="OnSwitchLanguageClick" Cursor="Hand">
                         <Button.Template>

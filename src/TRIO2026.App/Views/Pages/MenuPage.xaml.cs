@@ -14,6 +14,7 @@ public partial class MenuPage : UserControl
 {
     private readonly SessionService _sessionService;
     private readonly OverlayDialog _dialogOverlay;
+    private readonly SystemSettingService _systemSettings;
 
     public MenuPage(SessionService sessionService,
         OverlayDialog dialogOverlay, LoginOverlay loginOverlay,
@@ -23,10 +24,43 @@ public partial class MenuPage : UserControl
         InitializeComponent();
         _sessionService = sessionService;
         _dialogOverlay = dialogOverlay;
+        _systemSettings = systemSettings;
 
         // 初始化共用使用者選單
         UserMenu.Initialize(sessionService,
             dialogOverlay, loginOverlay, authService, tokenService, systemSettings);
+
+        // 根據 Device.operation_mode 控制按鈕啟用狀態
+        ApplyOperationMode();
+    }
+
+    /// <summary>
+    /// 依據 DeviceOperationMode 設定決定 IntelliPlex / Custom 按鈕啟用狀態
+    /// Combo       → 兩者皆啟用
+    /// IntelliPlex → IntelliPlex 啟用, Custom 停用
+    /// Custom      → Custom 啟用, IntelliPlex 停用
+    /// </summary>
+    private void ApplyOperationMode()
+    {
+        var mode = _systemSettings.DeviceOperationMode;
+        Console.WriteLine($"[MenuPage] Device operation mode: {mode}");
+
+        switch (mode)
+        {
+            case "Combo":
+                BtnIntelliPlex.IsEnabled = true;
+                BtnCustom.IsEnabled = true;
+                break;
+            case "Custom":
+                BtnIntelliPlex.IsEnabled = false;
+                BtnCustom.IsEnabled = true;
+                break;
+            case "IntelliPlex":
+            default:
+                BtnIntelliPlex.IsEnabled = true;
+                BtnCustom.IsEnabled = false;
+                break;
+        }
     }
 
     /// <summary>供外部呼叫刷新使用者顯示</summary>

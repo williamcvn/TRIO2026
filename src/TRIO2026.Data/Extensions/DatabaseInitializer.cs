@@ -323,6 +323,41 @@ public static class DatabaseInitializer
         await context.Database.MigrateAsync();
         Console.WriteLine(isNew ? "    資料庫已建立" : "    資料庫 Migration 完成");
 
+        // Schema 遷移：確保 User 表有 IsDeleted / DeletedAt / DeletedBy 欄位
+        {
+            var conn = context.Database.GetDbConnection();
+            if (conn.State != System.Data.ConnectionState.Open) await conn.OpenAsync();
+
+            // 讀取現有欄位
+            using var pragmaCmd = conn.CreateCommand();
+            pragmaCmd.CommandText = "PRAGMA table_info(User)";
+            var existingColumns = new HashSet<string>();
+            using (var reader = await pragmaCmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                    existingColumns.Add(reader.GetString(1));
+            }
+
+            // 需要的新欄位（名稱 → ALTER TABLE SQL）
+            var requiredColumns = new Dictionary<string, string>
+            {
+                ["IsDeleted"] = "ALTER TABLE User ADD COLUMN IsDeleted INTEGER NOT NULL DEFAULT 0",
+                ["DeletedAt"] = "ALTER TABLE User ADD COLUMN DeletedAt TEXT",
+                ["DeletedBy"] = "ALTER TABLE User ADD COLUMN DeletedBy TEXT"
+            };
+
+            foreach (var (col, sql) in requiredColumns)
+            {
+                if (!existingColumns.Contains(col))
+                {
+                    using var alterCmd = conn.CreateCommand();
+                    alterCmd.CommandText = sql;
+                    await alterCmd.ExecuteNonQueryAsync();
+                    Console.WriteLine($"    已新增 User.{col} 欄位");
+                }
+            }
+        }
+
         // 增量植入 User（按 Id 補入缺少的帳號）
         {
             var users = UserSeed.GetSeedData(credentials, PasswordHasher);

@@ -120,7 +120,7 @@
                 Cursor="Hand"
                 Click="CloseButton_Click"
                 Visibility="Collapsed"
-                ToolTip="關閉應用程式">
+                ToolTip="Close">
             <Button.Style>
                 <Style TargetType="Button">
                 </Style>
@@ -169,7 +169,7 @@
                     </Border.Clip>
                 </Border>
 
-                <TextBlock Text="帳號" FontSize="14"
+                <TextBlock x:Name="LblUsername" Text="Username" FontSize="14"
                            Foreground="{StaticResource TextSecondaryBrush}"
                            Margin="4,0,0,6" />
 
@@ -298,7 +298,7 @@
                     </Border>
                 </Grid>
 
-                <TextBlock Text="密碼" FontSize="14"
+                <TextBlock x:Name="LblPassword" Text="Password" FontSize="14"
                            Foreground="{StaticResource TextSecondaryBrush}"
                            Margin="4,0,0,6" />
                 <Border Style="{StaticResource InputBorderStyle}" Margin="0,0,0,16"
@@ -311,7 +311,7 @@
                                  LostFocus="InputBox_LostFocus" />
                 </Border>
 
-                <CheckBox Content="記住密碼"
+                <CheckBox x:Name="ChkRemember" Content="Remember"
                           Style="{StaticResource TouchCheckBox}"
                           IsChecked="{Binding RememberMe}"
                           Margin="4,0,0,20" TabIndex="2" />
@@ -324,7 +324,7 @@
                                FontSize="14" TextWrapping="Wrap" HorizontalAlignment="Center" />
                 </Border>
 
-                <Button Content="登　入"
+                <Button x:Name="BtnLogin" Content="Login"
                         Style="{StaticResource LoginButton}"
                         Command="{Binding LoginCommand}"
                         IsDefault="True" TabIndex="3" />

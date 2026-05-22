@@ -196,19 +196,19 @@ public class LoginViewModel : ViewModelBase
 
                 case AuthResult.UserNotFound:
                 case AuthResult.WrongPassword:
-                    ErrorMessage = "帳號或密碼錯誤";
+                    ErrorMessage = LocalizationService.Instance["Login.InvalidCredentials"];
                     EventLogService.Instance.LogAuth("Login", Username, false, $"Reason={result}");
                     TriggerShake();
                     break;
 
                 case AuthResult.AccountDisabled:
-                    ErrorMessage = "此帳號已停用，請聯絡管理員";
+                    ErrorMessage = LocalizationService.Instance["Login.AccountDisabled"];
                     EventLogService.Instance.LogAuth("Login", Username, false, "Reason=AccountDisabled");
                     TriggerShake();
                     break;
 
                 case AuthResult.AccountLocked:
-                    ErrorMessage = "帳號已鎖定，請稍後再試";
+                    ErrorMessage = LocalizationService.Instance["Login.AccountLocked"];
                     EventLogService.Instance.LogAuth("Login", Username, false, "Reason=AccountLocked");
                     TriggerShake();
                     break;
@@ -216,7 +216,7 @@ public class LoginViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"系統錯誤：{ex.Message}";
+            ErrorMessage = $"{LocalizationService.Instance["Login.SystemError"]}: {ex.Message}";
             EventLogService.Instance?.LogException("Auth", "LoginViewModel", ex);
         }
         finally

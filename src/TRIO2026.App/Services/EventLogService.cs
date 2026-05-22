@@ -70,33 +70,38 @@ public class EventLogService : IDisposable
     // 公開 API — 生產者端（非阻塞）
     // ═══════════════════════════════════════
 
-    /// <summary>寫入 Info 日誌</summary>
-    public void LogInfo(string category, string source, string? errorId,
+    /// <summary>寫入 Info 日誌（eventCode → EventCode 欄位，ErrorId = null）</summary>
+    public void LogInfo(string category, string source, string? eventCode,
         string message, string? detail = null)
-        => Enqueue(SystemEvent.CreateInfo(category, source, message, errorId, null, detail));
+        => Enqueue(SystemEvent.CreateInfo(category, source, message,
+            errorId: null, eventCode: eventCode, detail: detail));
 
-    /// <summary>寫入 Warning 日誌</summary>
-    public void LogWarning(string category, string source, string? errorId,
+    /// <summary>寫入 Warning 日誌（eventCode → EventCode 欄位，ErrorId = null）</summary>
+    public void LogWarning(string category, string source, string? eventCode,
         string message, string? detail = null)
-        => Enqueue(SystemEvent.CreateWarning(category, source, message, errorId, null, detail));
+        => Enqueue(SystemEvent.CreateWarning(category, source, message,
+            errorId: null, eventCode: eventCode, detail: detail));
 
-    /// <summary>寫入 Error 日誌</summary>
+    /// <summary>寫入 Error 日誌（errorId → ErrorId + EventCode 雙寫）</summary>
     public void LogError(string category, string source, string? errorId,
         string message, string? detail = null)
-        => Enqueue(SystemEvent.CreateError(category, source, message, errorId, null, detail));
+        => Enqueue(SystemEvent.CreateError(category, source, message,
+            errorId: errorId, eventCode: errorId, detail: detail));
 
-    /// <summary>寫入 Fatal 日誌</summary>
+    /// <summary>寫入 Fatal 日誌（errorId → ErrorId + EventCode 雙寫）</summary>
     public void LogFatal(string category, string source, string? errorId,
         string message, string? detail = null)
-        => Enqueue(SystemEvent.CreateFatal(category, source, message, errorId, null, detail));
+        => Enqueue(SystemEvent.CreateFatal(category, source, message,
+            errorId: errorId, eventCode: errorId, detail: detail));
 
-    /// <summary>從例外寫入 Error 日誌（若無 errorId，自動從 EventCodeDefinition 解析或動態註冊）</summary>
+    /// <summary>從例外寫入 Error 日誌（errorId → ErrorId + EventCode 雙寫）</summary>
     public void LogException(string category, string source, Exception ex,
         string? errorId = null, string? message = null)
     {
-        // 若未提供 errorId，嘗試動態解析或註冊
         errorId ??= ResolveOrCreateErrorId(category, ex);
-        Enqueue(SystemEvent.CreateFromException(category, source, ex, errorId, message));
+        var evt = SystemEvent.CreateFromException(category, source, ex, errorId, message);
+        evt.EventCode = errorId; // 確保 EventCode 也有值
+        Enqueue(evt);
     }
 
     /// <summary>

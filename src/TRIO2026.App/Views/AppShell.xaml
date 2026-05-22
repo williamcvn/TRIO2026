@@ -27,6 +27,7 @@
                 <!-- 共用 Overlay（在所有頁面上方） -->
                 <controls:OverlayDialog x:Name="DialogOverlay" />
                 <controls:LoginOverlay x:Name="LoginOverlayHost" />
+                <controls:ChangePasswordOverlay x:Name="ChangePasswordOverlayHost" />
             </Grid>
         </Border>
     </Viewbox>

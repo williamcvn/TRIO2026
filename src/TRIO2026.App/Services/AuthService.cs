@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace TRIO2026.App.Services;
 
 /// <summary>
-/// 認證服務 — 負責登入驗證、密碼雜湊、鎖定機制
+/// 認證服務 — 負責登入驗證、密碼雜湊、鎖定機制、密碼變更
 /// 
 /// 資料來源：main.db 的 User 表
 /// 
@@ -18,10 +18,17 @@ public class AuthService
     private const int LockoutMinutes = 15;
 
     private readonly AppMainDbContext _db;
+    private readonly PasswordPolicyService? _passwordPolicy;
 
     public AuthService(AppMainDbContext db)
     {
         _db = db;
+    }
+
+    public AuthService(AppMainDbContext db, PasswordPolicyService passwordPolicy)
+    {
+        _db = db;
+        _passwordPolicy = passwordPolicy;
     }
 
     /// <summary>
@@ -34,7 +41,7 @@ public class AuthService
         _db.ChangeTracker.Clear();
 
         var user = await _db.Users
-            .FirstOrDefaultAsync(u => u.Username == username);
+            .FirstOrDefaultAsync(u => u.Username == username && u.IsDeleted == 0);
 
         if (user == null)
         {
@@ -110,13 +117,13 @@ public class AuthService
     }
 
     /// <summary>
-    /// 取得可登入的使用者清單（排除免登入專用帳號）
+    /// 取得可登入的使用者清單（排除免登入專用帳號和已刪除帳號）
     /// </summary>
     public async Task<List<User>> GetAllUsersAsync()
     {
         _db.ChangeTracker.Clear();
         return await _db.Users
-            .Where(u => u.IsActive == 1 && u.PasswordHash != "")
+            .Where(u => u.IsActive == 1 && u.PasswordHash != "" && u.IsDeleted == 0)
             .OrderBy(u => u.Username)
             .ToListAsync();
     }
@@ -133,4 +140,57 @@ public class AuthService
             await _db.SaveChangesAsync();
         }
     }
+
+    /// <summary>
+    /// 變更使用者密碼
+    /// 1. 驗證舊密碼（BCrypt.Verify）
+    /// 2. PasswordPolicyService.Validate(newPassword, roleLevel)
+    /// 3. 更新 PasswordHash + PasswordChangedAt + ForcePasswordChange=0
+    /// </summary>
+    public async Task<(bool Success, string? Error)> ChangePasswordAsync(
+        int userId, string oldPassword, string newPassword)
+    {
+        _db.ChangeTracker.Clear();
+
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsDeleted == 0);
+        if (user == null)
+            return (false, "User not found.");
+
+        // 驗證舊密碼
+        bool isValid;
+        try
+        {
+            isValid = BCrypt.Net.BCrypt.Verify(oldPassword, user.PasswordHash);
+        }
+        catch
+        {
+            isValid = false;
+        }
+
+        if (!isValid)
+            return (false, "WRONG_CURRENT_PASSWORD");
+
+        // 新舊密碼不可相同
+        if (oldPassword == newPassword)
+            return (false, "SAME_PASSWORD");
+
+        // 密碼原則驗證
+        if (_passwordPolicy != null)
+        {
+            var policyError = _passwordPolicy.Validate(newPassword, user.RoleLevel);
+            if (policyError != null)
+                return (false, policyError);
+        }
+
+        // 更新密碼
+        user.PasswordHash = HashPassword(newPassword);
+        user.PasswordChangedAt = DateTime.UtcNow.ToString("O");
+        user.ForcePasswordChange = 0;
+        user.UpdatedAt = DateTime.UtcNow.ToString("O");
+        user.UpdatedBy = user.Username;
+        await _db.SaveChangesAsync();
+
+        return (true, null);
+    }
 }
+

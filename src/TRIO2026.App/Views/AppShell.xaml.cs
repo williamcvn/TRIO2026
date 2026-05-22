@@ -32,6 +32,7 @@ public partial class AppShell : Window
     private MenuPage? _menuPage;
     private UvDecontaminationPage? _uvPage;
     private ServiceModePage? _serviceModePage;
+    private AccountManagementPage? _accountMgmtPage;
 
     public AppShell(IServiceProvider serviceProvider,
         SessionService sessionService,
@@ -68,6 +69,11 @@ public partial class AppShell : Window
                 }
             }
         };
+
+        // 初始化 ChangePasswordOverlay 服務
+        var policyService = serviceProvider.GetRequiredService<PasswordPolicyService>();
+        var authForOverlay = serviceProvider.GetRequiredService<AuthService>();
+        ChangePasswordOverlayHost.Initialize(authForOverlay, policyService);
     }
 
     private void OnWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -111,6 +117,7 @@ public partial class AppShell : Window
         {
             case "login":
                 _loginPage ??= CreateLoginPage();
+                _loginPage.RefreshDisplay();
                 PageHost.Content = _loginPage;
                 break;
 
@@ -135,6 +142,12 @@ public partial class AppShell : Window
                 _serviceModePage ??= CreateServiceModePage();
                 _serviceModePage.RefreshUserDisplay();
                 PageHost.Content = _serviceModePage;
+                break;
+
+            case "accountMgmt":
+                _accountMgmtPage ??= CreateAccountMgmtPage();
+                _accountMgmtPage.RefreshUserDisplay();
+                PageHost.Content = _accountMgmtPage;
                 break;
         }
     }
@@ -176,21 +189,70 @@ public partial class AppShell : Window
             _authService, _tokenService, _systemSettings);
     }
 
+    private AccountManagementPage CreateAccountMgmtPage()
+    {
+        var accountService = _serviceProvider.GetRequiredService<AccountManagementService>();
+        var policyService = _serviceProvider.GetRequiredService<PasswordPolicyService>();
+        return new AccountManagementPage(_sessionService, _authService, _tokenService,
+            _systemSettings, accountService, policyService);
+    }
+
     // ═══════ 頁面事件處理 ═══════
 
-    private void OnLoginSucceeded(object? sender, EventArgs e)
+    private async void OnLoginSucceeded(object? sender, EventArgs e)
     {
+        var user = _sessionService.CurrentUser;
         var role = _sessionService.CurrentRole;
+
+        // 記錄最後登入使用者的語系（供 App 重啟時決定登入頁語系）
+        if (user != null && !string.IsNullOrEmpty(user.LanguagePreference))
+            _systemSettings.LastUserLanguage = user.LanguagePreference;
+
+        // ForcePasswordChange 檢查
+        if (user != null && user.ForcePasswordChange == 1)
+        {
+            var loc = LocalizationService.Instance;
+
+            // 強制密碼變更（不可取消）
+            var result = await ChangePasswordOverlayHost.ShowAsync(
+                user.Id, user.RoleLevel, isForced: true);
+
+            if (result.IsSuccess)
+            {
+                // 密碼變更成功 → 強制登出重新登入
+                await DialogOverlay.ShowAsync(
+                    loc["PasswordUI.SuccessTitle"],
+                    loc["PasswordUI.ForceSuccessMessage"],
+                    loc["Common.OK"],
+                    OverlayDialogIcon.Success);
+
+                EventLogService.Instance?.LogAuth("ForcePasswordChange",
+                    user.Username, true, "Password changed, forcing re-login");
+
+                await ApplyLoginScreenLanguageAsync();
+                _sessionService.ClearSession();
+                _loginPage = null;
+                NavigateTo("login");
+                return;
+            }
+            // 如果取消（理論上不應發生，因為 isForced=true 隱藏了取消按鈕）
+            // 但安全起見，強制登出
+            await ApplyLoginScreenLanguageAsync();
+            _sessionService.ClearSession();
+            NavigateTo("login");
+            return;
+        }
+
         if (role == RoleLevel.Service)
         {
             // Service 登入 → ServiceModePage
-            _serviceModePage = null; // 重新建立以刷新使用者資訊
+            _serviceModePage = null;
             NavigateTo("service");
         }
         else
         {
             // Operator / Admin 登入 → MenuPage
-            _menuPage = null; // 重新建立以刷新使用者資訊
+            _menuPage = null;
             NavigateTo("menu");
         }
     }
@@ -247,5 +309,42 @@ public partial class AppShell : Window
         var guestUser = LoadGuestUser();
         _sessionService.SetGuestSession(guestUser, _systemSettings.GuestAccountDisplayName);
         _menuPage = null; // 重新建立以刷新使用者資訊
+    }
+
+    /// <summary>
+    /// 顯示密碼變更 Overlay（由 UserMenuControl 呼叫）
+    /// 使用 AppShell 頂層的 ChangePasswordOverlayHost
+    /// </summary>
+    public async Task<bool> ShowChangePasswordAsync(int userId, int roleLevel, bool isForced = false)
+    {
+        var result = await ChangePasswordOverlayHost.ShowAsync(userId, roleLevel, isForced);
+        return result.IsSuccess;
+    }
+
+    /// <summary>
+    /// 根據 login_screen_language_mode 設定切換登入頁語系
+    /// 
+    /// 必須在 ClearSession() 之前呼叫，以取得當前使用者的語系偏好。
+    /// - "last_user"：使用當前使用者的 LanguagePreference（找不到則 fallback 到 DefaultLanguage）
+    /// - "fixed"：統一使用 DefaultLanguage
+    /// </summary>
+    public async Task ApplyLoginScreenLanguageAsync()
+    {
+        var mode = _systemSettings.LoginScreenLanguageMode;
+        string targetLang;
+
+        if (mode == "last_user")
+        {
+            // 取得當前使用者的語系偏好（必須在 ClearSession 之前呼叫）
+            var userLang = _sessionService.CurrentUser?.LanguagePreference;
+            targetLang = !string.IsNullOrEmpty(userLang) ? userLang : _systemSettings.DefaultLanguage;
+        }
+        else
+        {
+            // fixed 模式 → 統一使用系統預設語系
+            targetLang = _systemSettings.DefaultLanguage;
+        }
+
+        await LocalizationService.Instance.SwitchLanguageAsync(targetLang);
     }
 }

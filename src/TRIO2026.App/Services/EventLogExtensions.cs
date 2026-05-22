@@ -9,6 +9,9 @@ namespace TRIO2026.App.Services;
 ///   - 每個方法對應一種操作類型，減少呼叫端重複程式碼
 ///   - 密碼欄位自動遮蔽（isSensitive = true → "***"）
 ///   - 所有方法都是 null-safe（Instance 為 null 時不拋例外）
+///   - Info/Warning → eventCode 寫入 EventCode 欄位（ErrorId = null）
+///   - Error/Fatal → errorId 寫入 ErrorId + EventCode 雙寫
+///   - 所有事件均帶有 EventCode 以利合規查詢
 /// 
 /// 製作者: Office of William
 /// </summary>
@@ -40,7 +43,7 @@ public static class EventLogExtensions
     public static void LogButtonClick(this EventLogService? service,
         string page, string element, string? detail = null)
     {
-        service?.LogInfo("UI", page, null,
+        service?.LogInfo("UI", page, ErrorCodes.UiButtonClick,
             "Button Click",
             $"Element={element}, Page={page}" +
             (detail != null ? $", {detail}" : ""));
@@ -59,7 +62,7 @@ public static class EventLogExtensions
         string page, string field, string? value, bool isSensitive = false)
     {
         var safeValue = isSensitive ? "***" : (value ?? "");
-        service?.LogInfo("UI", page, null,
+        service?.LogInfo("UI", page, ErrorCodes.UiInput,
             "Input",
             $"Field={field}, Value={safeValue}, Page={page}");
     }
@@ -68,15 +71,22 @@ public static class EventLogExtensions
     // UV 操作
     // ═══════════════════════════════════════
 
-    /// <summary>記錄 UV 操作事件</summary>
+    /// <summary>記錄 UV 操作事件（自動根據 eventCode 前綴選擇 Level）</summary>
     /// <param name="action">動作：Start / Stop / Complete / DurationChanged</param>
     /// <param name="detail">額外資訊（如照射時間）</param>
-    /// <param name="errorId">對應 ErrorCode（可選）</param>
+    /// <param name="eventCode">對應 ErrorCode（可選）</param>
     public static void LogUvAction(this EventLogService? service,
-        string action, string? detail = null, string? errorId = null)
+        string action, string? detail = null, string? eventCode = null)
     {
-        service?.LogInfo("UV", "UvViewModel", errorId,
-            $"UV {action}", detail);
+        var message = $"UV {action}";
+
+        // 根據 eventCode 前綴自動選擇正確的 Level
+        if (eventCode?.StartsWith("ERR") == true)
+            service?.LogError("UV", "UvViewModel", eventCode, message, detail);
+        else if (eventCode?.StartsWith("WRN") == true)
+            service?.LogWarning("UV", "UvViewModel", eventCode, message, detail);
+        else
+            service?.LogInfo("UV", "UvViewModel", eventCode, message, detail);
     }
 
     // ═══════════════════════════════════════
@@ -84,31 +94,32 @@ public static class EventLogExtensions
     // ═══════════════════════════════════════
 
     /// <summary>記錄認證事件</summary>
-    /// <param name="action">動作：Login / Logout</param>
+    /// <param name="action">動作：Login / Logout / ServiceModeLogin / ExitServiceMode / ForcePasswordChange</param>
     /// <param name="username">帳號名稱</param>
     /// <param name="success">是否成功</param>
     /// <param name="detail">額外資訊（失敗原因等）</param>
     public static void LogAuth(this EventLogService? service,
         string action, string? username, bool success, string? detail = null)
     {
-        var errorId = action switch
+        var eventCode = action switch
         {
             "Login" when success => ErrorCodes.LoginSuccess,
             "Login" when !success => ErrorCodes.LoginFailed,
             "Logout" => ErrorCodes.UserLogout,
+            "ServiceModeLogin" => ErrorCodes.ServiceModeLogin,
+            "ExitServiceMode" => ErrorCodes.ExitServiceMode,
+            "ForcePasswordChange" => ErrorCodes.ForcePasswordChange,
             _ => null
         };
 
-        var level = success ? "Info" : "Warning";
+        var message = $"{action} {(success ? "Success" : "Failed")}";
+        var fullDetail = $"Username={username ?? "unknown"}" +
+                         (detail != null ? $", {detail}" : "");
 
-        if (level == "Warning")
-            service?.LogWarning("Auth", "LoginViewModel", errorId,
-                $"{action} {(success ? "Success" : "Failed")}",
-                $"Username={username ?? "unknown"}" + (detail != null ? $", {detail}" : ""));
+        if (!success)
+            service?.LogWarning("Auth", "LoginViewModel", eventCode, message, fullDetail);
         else
-            service?.LogInfo("Auth", "LoginViewModel", errorId,
-                $"{action} {(success ? "Success" : "Failed")}",
-                $"Username={username ?? "unknown"}" + (detail != null ? $", {detail}" : ""));
+            service?.LogInfo("Auth", "LoginViewModel", eventCode, message, fullDetail);
     }
 
     // ═══════════════════════════════════════
@@ -119,7 +130,42 @@ public static class EventLogExtensions
     public static void LogMenuAction(this EventLogService? service,
         string action, string? detail = null)
     {
-        service?.LogInfo("UI", "UserMenu", null,
+        service?.LogInfo("UI", "UserMenu", ErrorCodes.UiMenuAction,
             $"Menu {action}", detail);
+    }
+
+    // ═══════════════════════════════════════
+    // 帳號管理
+    // ═══════════════════════════════════════
+
+    /// <summary>記錄帳號管理操作</summary>
+    /// <param name="eventCode">對應 ErrorCodes.AccountXxx</param>
+    /// <param name="action">操作描述</param>
+    /// <param name="detail">額外資訊</param>
+    public static void LogAccountMgmt(this EventLogService? service,
+        string eventCode, string action, string? detail = null)
+    {
+        service?.LogInfo("AccountMgmt", "AccountManagementPage", eventCode,
+            action, detail);
+    }
+
+    // ═══════════════════════════════════════
+    // 密碼變更
+    // ═══════════════════════════════════════
+
+    /// <summary>記錄密碼變更結果</summary>
+    public static void LogPasswordChange(this EventLogService? service,
+        bool success, int userId, string? errorDetail = null)
+    {
+        if (success)
+            service?.LogInfo("Auth", "ChangePasswordOverlay",
+                ErrorCodes.PasswordChanged,
+                "Password Changed",
+                $"UserId={userId}");
+        else
+            service?.LogWarning("Auth", "ChangePasswordOverlay",
+                ErrorCodes.PasswordChangeFailed,
+                "Password Change Failed",
+                $"UserId={userId}, Error={errorDetail ?? "unknown"}");
     }
 }

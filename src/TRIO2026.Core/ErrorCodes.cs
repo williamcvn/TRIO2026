@@ -27,12 +27,17 @@ public static class ErrorCodes
     public const string LoginFailed = "WRN-2001";
     public const string LoginSuccess = "INF-2002";
     public const string UserLogout = "INF-2003";
+    public const string ServiceModeLogin = "INF-2004";
+    public const string ExitServiceMode = "INF-2005";
+    public const string ForcePasswordChange = "INF-2006";
+    public const string PasswordChanged = "INF-2007";
+    public const string PasswordChangeFailed = "WRN-2008";
 
     // ── 3xxx UV ──
     public const string UvStart = "INF-3001";
     public const string UvStop = "WRN-3002";
     public const string UvComplete = "INF-3003";
-    public const string UvDoorInterrupted = "ERR-3004";
+    public const string UvDoorInterrupted = "ERR-3004"; // 門板中斷 — Error 等級（需 CFS 回報）
     public const string UvLampFailure = "ERR-3005";
     public const string UvConfigLoadFailure = "ERR-3006";
 
@@ -44,4 +49,18 @@ public static class ErrorCodes
 
     // ── 6xxx Navigation ──
     public const string PageNavigation = "INF-6001";
+
+    // ── 7xxx UI / Interaction ──
+    public const string UiButtonClick = "INF-7001";
+    public const string UiMenuAction = "INF-7002";
+    public const string UiInput = "INF-7003";
+
+    // ── 8xxx Account Management ──
+    public const string AccountCreated = "INF-8001";
+    public const string AccountDeleted = "INF-8002";
+    public const string AccountDisabled = "INF-8003";
+    public const string AccountEnabled = "INF-8004";
+    public const string AccountLocked = "INF-8005";
+    public const string AccountUnlocked = "INF-8006";
+    public const string PasswordReset = "INF-8007";
 }
