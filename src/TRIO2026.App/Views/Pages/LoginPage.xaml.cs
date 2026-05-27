@@ -74,7 +74,9 @@ public partial class LoginPage : UserControl
                     if (match != null)
                         _viewModel.SelectedUser = match;
                 }
-                PasswordBox.Focus();
+
+                // 聚焦帳號下拉選單，讓使用者先確認帳號
+                UserDropdown.Focus();
             }
             else
             {
@@ -94,10 +96,30 @@ public partial class LoginPage : UserControl
         };
     }
 
-    /// <summary>刷新多語系與 UI 顯示</summary>
+    /// <summary>刷新多語系與 UI 顯示（登出後或語系切換時呼叫）</summary>
     public void RefreshDisplay()
     {
         ApplyLocalization();
+
+        // 重新壓制鍵盤彈出（避免聚焦變更觸發數字鍵盤）
+        _suppressKeypadOnce = true;
+
+        // 清空密碼欄位
+        PasswordBox.Password = "";
+        _viewModel.Password = "";
+
+        // 聚焦帳號欄位（讓使用者先確認帳號再輸入密碼）
+        if (_viewModel.ShowUserDropdown)
+            UserDropdown.Focus();
+        else
+            UsernameBox.Focus();
+
+        // 延遲解除壓制
+        Dispatcher.BeginInvoke(async () =>
+        {
+            await Task.Delay(500);
+            _suppressKeypadOnce = false;
+        });
     }
 
     private void ApplyLocalization()
@@ -110,13 +132,16 @@ public partial class LoginPage : UserControl
         CloseButton.ToolTip = loc["Login.Close"];
     }
 
-    /// <summary>下拉選單選擇變更 — 自動聚焦到密碼框</summary>
+    /// <summary>下拉選單選擇變更</summary>
     private void UserDropdown_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         if (UserDropdown.SelectedItem != null)
         {
             PasswordBox.Password = ""; // 清除舊密碼
-            PasswordBox.Focus();
+
+            // 數字鍵盤模式：不自動聚焦密碼框（避免彈出鍵盤）
+            if (!_settings.NumericKeypadOnly)
+                PasswordBox.Focus();
         }
     }
 
