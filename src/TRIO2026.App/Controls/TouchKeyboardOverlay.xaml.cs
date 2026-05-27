@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using TRIO2026.App.Services;
 
@@ -31,10 +32,10 @@ public partial class TouchKeyboardOverlay : UserControl
 
     private static readonly string[][] SymbolRows =
     [
-        ["!","@","#","$","%","^","&","*","(",")"],
-        ["-","_","=","+","[","]","{","}","\\","|"],
-        [";",":","'","\"",",",".","/","?","~"],
-        ["`","<",">"]
+        ["!","@","#","$","%","^","&","*"],
+        ["(",")","_","-","=","+","[","]"],
+        ["{","}","\\","|",";",":","'","\""],
+        [",",".","/","?","~","`","<",">"]
     ];
 
     private string _inputText = "";
@@ -82,6 +83,14 @@ public partial class TouchKeyboardOverlay : UserControl
         BuildKeyboard();
 
         Visibility = Visibility.Visible;
+
+        // 聚焦隱藏 TextBox 以接收實體鍵盤輸入（等 layout 完成）
+        FocusCatcher.Text = "";
+        Dispatcher.BeginInvoke(() =>
+        {
+            FocusCatcher.Focus();
+            Keyboard.Focus(FocusCatcher);
+        }, System.Windows.Threading.DispatcherPriority.Input);
     }
 
     /// <summary>隱藏鍵盤</summary>
@@ -111,19 +120,14 @@ public partial class TouchKeyboardOverlay : UserControl
                 Margin = new Thickness(0, 1, 0, 1)
             };
 
-            // 第 4 行（index=3）：前面加 Shift 或 符號切換
-            if (r == 3)
+            bool isLastRow = r == rows.Length - 1;
+
+            // 最後一行：前面加 Shift（字母模式）
+            if (isLastRow && !_isSymbolMode)
             {
-                if (_isSymbolMode)
-                {
-                    rowPanel.Children.Add(CreateFuncButton("ABC", "#5D4037", 72, OnAbcClick));
-                }
-                else
-                {
-                    var shiftLabel = _isShifted ? "⬆ ON" : "⬆";
-                    var shiftBg = _isShifted ? "#4A6A2A" : "#5D4037";
-                    rowPanel.Children.Add(CreateFuncButton(shiftLabel, shiftBg, 72, OnShiftClick));
-                }
+                var shiftLabel = _isShifted ? "⬆ ON" : "⬆";
+                var shiftBg = _isShifted ? "#4A6A2A" : "#5D4037";
+                rowPanel.Children.Add(CreateFuncButton(shiftLabel, shiftBg, 72, OnShiftClick));
             }
 
             // 字元按鈕
@@ -134,14 +138,14 @@ public partial class TouchKeyboardOverlay : UserControl
                 {
                     Content = display,
                     Style = (Style)FindResource("CharKey"),
-                    Tag = key // 原始小寫
+                    Tag = key
                 };
                 btn.Click += OnCharClick;
                 rowPanel.Children.Add(btn);
             }
 
-            // 第 4 行：後面加退格
-            if (r == 3)
+            // 最後一行：後面加退格
+            if (isLastRow)
             {
                 rowPanel.Children.Add(CreateFuncButton("⌫", "#5D4037", 72, OnBackspaceClick));
             }
@@ -160,7 +164,7 @@ public partial class TouchKeyboardOverlay : UserControl
         if (_isSymbolMode)
             bottomRow.Children.Add(CreateFuncButton("ABC", "#5D4037", 80, OnAbcClick));
         else
-            bottomRow.Children.Add(CreateFuncButton("?123", "#5D4037", 80, OnSymbolClick));
+            bottomRow.Children.Add(CreateFuncButton("!@#", "#5D4037", 80, OnSymbolClick));
 
         // 空白鍵
         var spaceBtn = CreateFuncButton(
@@ -217,12 +221,16 @@ public partial class TouchKeyboardOverlay : UserControl
         _isSymbolMode = true;
         _isShifted = false;
         BuildKeyboard();
+        Dispatcher.BeginInvoke(() => { FocusCatcher.Focus(); Keyboard.Focus(FocusCatcher); },
+            System.Windows.Threading.DispatcherPriority.Input);
     }
 
     private void OnAbcClick(object sender, RoutedEventArgs e)
     {
         _isSymbolMode = false;
         BuildKeyboard();
+        Dispatcher.BeginInvoke(() => { FocusCatcher.Focus(); Keyboard.Focus(FocusCatcher); },
+            System.Windows.Threading.DispatcherPriority.Input);
     }
 
     private void OnBackspaceClick(object sender, RoutedEventArgs e)
@@ -289,5 +297,49 @@ public partial class TouchKeyboardOverlay : UserControl
                 ? "…" + new string('●', maxVisible)
                 : new string('●', _inputText.Length);
         }
+    }
+
+    // ═══════════════════════════════════════
+    // 實體鍵盤輸入（透過隱藏 FocusCatcher 接收）
+    // ═══════════════════════════════════════
+
+    private void FocusCatcher_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case Key.Back:
+                OnBackspaceClick(this, e);
+                e.Handled = true;
+                break;
+            case Key.Enter:
+                OnConfirmClick(this, e);
+                e.Handled = true;
+                break;
+            case Key.Escape:
+                CancelButton_Click(this, e);
+                e.Handled = true;
+                break;
+            case Key.Space:
+                OnSpaceClick(this, e);
+                e.Handled = true;
+                break;
+        }
+    }
+
+    private void FocusCatcher_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        // 符號模式下阻擋實體鍵盤字元輸入（僅允許觸控鍵盤點擊）
+        if (_isSymbolMode)
+        {
+            e.Handled = true;
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(e.Text))
+        {
+            _inputText += e.Text;
+            UpdateDisplay();
+        }
+        e.Handled = true; // 阻止實際寫入 FocusCatcher
     }
 }

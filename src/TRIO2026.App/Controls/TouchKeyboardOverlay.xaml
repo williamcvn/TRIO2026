@@ -11,7 +11,7 @@
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="FontFamily" Value="Consolas" />
             <Setter Property="Foreground" Value="White" />
-            <Setter Property="MinWidth" Value="52" />
+            <Setter Property="MinWidth" Value="50" />
             <Setter Property="Height" Value="52" />
             <Setter Property="Margin" Value="3" />
             <Setter Property="Cursor" Value="Hand" />
@@ -150,9 +150,17 @@
                     </Button>
                 </Grid>
 
-                <!-- 鍵盤區域 — 由 code-behind 動態產生 -->
-                <StackPanel x:Name="KeyboardRows" HorizontalAlignment="Center" />
+                <!-- 鍵盤區域 — 由 code-behind 動態產生（固定高度避免切換時版面跳動） -->
+                <StackPanel x:Name="KeyboardRows" HorizontalAlignment="Center"
+                            MinHeight="295" VerticalAlignment="Top" />
             </StackPanel>
         </Border>
+
+        <!-- 隱藏焦點接收器：攔截實體鍵盤輸入 -->
+        <TextBox x:Name="FocusCatcher"
+                 Opacity="0" Width="0" Height="0"
+                 IsReadOnly="False"
+                 PreviewTextInput="FocusCatcher_PreviewTextInput"
+                 PreviewKeyDown="FocusCatcher_PreviewKeyDown" />
     </Grid>
 </UserControl>

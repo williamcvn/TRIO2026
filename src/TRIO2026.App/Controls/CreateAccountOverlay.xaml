@@ -1,6 +1,7 @@
 <UserControl x:Class="TRIO2026.App.Controls.CreateAccountOverlay"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:TRIO2026.App.Controls"
              Visibility="Collapsed">
 
     <!-- 全螢幕半透明遮罩 + 置中新增帳號卡片 -->
@@ -53,7 +54,8 @@
                              CaretBrush="#80D8FF"
                              FontSize="20" FontFamily="Segoe UI"
                              VerticalContentAlignment="Center"
-                             MaxLength="20" />
+                             MaxLength="20"
+                             GotFocus="TextBox_GotFocus" />
                 </Border>
 
                 <!-- Display Name 欄位 -->
@@ -69,7 +71,8 @@
                              CaretBrush="#80D8FF"
                              FontSize="20" FontFamily="Segoe UI"
                              VerticalContentAlignment="Center"
-                             MaxLength="50" />
+                             MaxLength="50"
+                             GotFocus="TextBox_GotFocus" />
                 </Border>
 
                 <!-- 角色選擇 -->
@@ -194,5 +197,8 @@
                 </Button>
             </StackPanel>
         </Border>
+
+        <!-- 觸控鍵盤 -->
+        <controls:TouchKeyboardOverlay x:Name="TouchKeyboard" />
     </Grid>
 </UserControl>

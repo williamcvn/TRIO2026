@@ -84,20 +84,9 @@ public partial class LoginPage : UserControl
                 LoginCard.Focus();
             }
 
-            // 觸控模式：阻擋實體鍵盤輸入（帳號 + 密碼）
-            if (_settings.NumericKeypadOnly)
-            {
-                PasswordBox.PreviewKeyDown += InputBox_PreviewKeyDown_Block;
-                PasswordBox.PreviewTextInput += InputBox_PreviewTextInput_Block;
-            }
-            else
-            {
-                // 傳統模式也阻擋實體鍵盤（強制使用觸控鍵盤）
-                PasswordBox.PreviewKeyDown += InputBox_PreviewKeyDown_Block;
-                PasswordBox.PreviewTextInput += InputBox_PreviewTextInput_Block;
-                UsernameBox.PreviewKeyDown += InputBox_PreviewKeyDown_Block;
-                UsernameBox.PreviewTextInput += InputBox_PreviewTextInput_Block;
-            }
+            // 密碼框阻擋實體鍵盤（強制透過觸控鍵盤/數字鍵盤輸入）
+            PasswordBox.PreviewKeyDown += InputBox_PreviewKeyDown_Block;
+            PasswordBox.PreviewTextInput += InputBox_PreviewTextInput_Block;
 
             // 初始化完成，等 UI 事件處理完後解除壓制旗標
             Dispatcher.BeginInvoke(() => _suppressKeypadOnce = false,

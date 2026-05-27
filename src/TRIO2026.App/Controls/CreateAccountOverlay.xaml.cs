@@ -63,7 +63,6 @@ public partial class CreateAccountOverlay : UserControl
         UsernameBox.Text = "";
         DisplayNameBox.Text = "";
         _selectedRole = 1;
-        UpdateRoleButtons();
         ErrorText.Visibility = Visibility.Collapsed;
 
         _tcs = new TaskCompletionSource<CreateAccountResult>();
@@ -79,7 +78,15 @@ public partial class CreateAccountOverlay : UserControl
         var opacityAnim = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200));
         BeginAnimation(OpacityProperty, opacityAnim);
 
-        Dispatcher.BeginInvoke(() => UsernameBox.Focus());
+        // 延遲到 Template Apply 後再更新角色按鈕外觀（確保 Operator 亮起）
+        Dispatcher.BeginInvoke(() =>
+        {
+            // 強制 ApplyTemplate 以確保 FindName 可用
+            BtnRoleOperator.ApplyTemplate();
+            BtnRoleAdmin.ApplyTemplate();
+            UpdateRoleButtons();
+            DialogCard.Focus();
+        });
 
         return _tcs.Task;
     }
@@ -159,6 +166,29 @@ public partial class CreateAccountOverlay : UserControl
     private void OnCancelClick(object sender, RoutedEventArgs e)
     {
         Hide(CreateAccountResult.Cancelled);
+    }
+
+    // ═══════════════════════════════════════
+    // 觸控鍵盤
+    // ═══════════════════════════════════════
+
+    private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBox textBox) return;
+
+        bool isUsername = textBox == UsernameBox;
+        string initialText = textBox.Text ?? "";
+        string titleKey = isUsername
+            ? "TouchKeyboard.TitleAccount"
+            : "AccountMgmt.LabelDisplayName";
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            DialogCard.Focus();
+            TouchKeyboard.Show(false, initialText,
+                result => { textBox.Text = result; },
+                () => { });
+        }));
     }
 
     private void Hide(CreateAccountResult result)

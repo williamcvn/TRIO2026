@@ -61,7 +61,7 @@ public partial class AccountManagementPage : UserControl
         var operatorUsername = sessionService.CurrentUser?.Username ?? "SYSTEM";
         CreateAccountOverlayHost.Initialize(accountService, operatorUsername);
 
-        ApplyLocalization();
+        Loaded += (_, _) => ApplyLocalization();
     }
 
     /// <summary>頁面導航到時刷新</summary>
