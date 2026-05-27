@@ -160,11 +160,16 @@ public partial class CreateAccountOverlay : UserControl
             };
             ErrorText.Text = msg;
             ErrorText.Visibility = Visibility.Visible;
+
+            EventLogService.Instance?.LogWarning("AccountMgmt", "CreateAccountOverlay",
+                null, "Account Create Failed",
+                $"Username={username}, Error={error}, By={_operatorUsername}");
         }
     }
 
     private void OnCancelClick(object sender, RoutedEventArgs e)
     {
+        EventLogService.Instance?.LogButtonClick("CreateAccountOverlay", "Cancel");
         Hide(CreateAccountResult.Cancelled);
     }
 

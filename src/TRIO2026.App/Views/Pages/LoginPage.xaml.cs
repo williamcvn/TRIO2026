@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using TRIO2026.App.Services;
 using TRIO2026.App.ViewModels;
+using TRIO2026.Core;
 
 namespace TRIO2026.App.Views.Pages;
 
@@ -129,12 +130,17 @@ public partial class LoginPage : UserControl
     {
         if (UserDropdown.SelectedItem != null)
         {
-            PasswordBox.Password = ""; // 清除舊密碼
+            PasswordBox.Password = "";
+            var selectedUser = UserDropdown.SelectedItem?.ToString() ?? "";
+            EventLogService.Instance?.LogInfo("Auth", "LoginPage",
+                ErrorCodes.UiInput, "UserDropdown Changed",
+                $"SelectedUser={selectedUser}");
         }
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
+        EventLogService.Instance?.LogButtonClick("LoginPage", "CloseApp");
         CloseRequested?.Invoke(this, EventArgs.Empty);
     }
 
