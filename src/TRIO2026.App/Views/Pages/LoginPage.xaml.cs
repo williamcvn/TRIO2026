@@ -90,9 +90,9 @@ public partial class LoginPage : UserControl
                 PasswordBox.PreviewTextInput += PasswordBox_PreviewTextInput_Block;
             }
 
-            // 初始化完成，解除壓制旗標（延遲一小段以確保 GotFocus 已處理完）
-            await Task.Delay(500);
-            _suppressKeypadOnce = false;
+            // 初始化完成，等 UI 事件處理完後解除壓制旗標
+            Dispatcher.BeginInvoke(() => _suppressKeypadOnce = false,
+                System.Windows.Threading.DispatcherPriority.Background);
         };
     }
 
@@ -114,12 +114,9 @@ public partial class LoginPage : UserControl
         else
             UsernameBox.Focus();
 
-        // 延遲解除壓制
-        Dispatcher.BeginInvoke(async () =>
-        {
-            await Task.Delay(500);
-            _suppressKeypadOnce = false;
-        });
+        // 等 UI 事件處理完後解除壓制
+        Dispatcher.BeginInvoke(() => _suppressKeypadOnce = false,
+            System.Windows.Threading.DispatcherPriority.Background);
     }
 
     private void ApplyLocalization()
