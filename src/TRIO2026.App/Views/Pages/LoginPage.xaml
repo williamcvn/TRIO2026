@@ -342,5 +342,8 @@
 
         <!-- 動態數字鍵盤覆蓋層（numeric_keypad_only=1 時啟用） -->
         <controls:NumericKeypadOverlay x:Name="NumericKeypad" />
+
+        <!-- 觸控全鍵盤覆蓋層（傳統模式，numeric_keypad_only=0 時啟用） -->
+        <controls:TouchKeyboardOverlay x:Name="TouchKeyboard" />
     </Grid>
 </UserControl>

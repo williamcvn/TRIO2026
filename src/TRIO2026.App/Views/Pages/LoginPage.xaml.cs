@@ -80,14 +80,23 @@ public partial class LoginPage : UserControl
             }
             else
             {
-                UsernameBox.Focus();
+                // 聚焦到登入卡片本身（不聚焦帳號框以避免觸控鍵盤自動彈出）
+                LoginCard.Focus();
             }
 
-            // 動態數字鍵盤模式：阻擋實體鍵盤輸入
+            // 觸控模式：阻擋實體鍵盤輸入（帳號 + 密碼）
             if (_settings.NumericKeypadOnly)
             {
-                PasswordBox.PreviewKeyDown += PasswordBox_PreviewKeyDown_Block;
-                PasswordBox.PreviewTextInput += PasswordBox_PreviewTextInput_Block;
+                PasswordBox.PreviewKeyDown += InputBox_PreviewKeyDown_Block;
+                PasswordBox.PreviewTextInput += InputBox_PreviewTextInput_Block;
+            }
+            else
+            {
+                // 傳統模式也阻擋實體鍵盤（強制使用觸控鍵盤）
+                PasswordBox.PreviewKeyDown += InputBox_PreviewKeyDown_Block;
+                PasswordBox.PreviewTextInput += InputBox_PreviewTextInput_Block;
+                UsernameBox.PreviewKeyDown += InputBox_PreviewKeyDown_Block;
+                UsernameBox.PreviewTextInput += InputBox_PreviewTextInput_Block;
             }
 
             // 初始化完成，等 UI 事件處理完後解除壓制旗標
@@ -108,11 +117,8 @@ public partial class LoginPage : UserControl
         PasswordBox.Password = "";
         _viewModel.Password = "";
 
-        // 聚焦帳號欄位（讓使用者先確認帳號再輸入密碼）
-        if (_viewModel.ShowUserDropdown)
-            UserDropdown.Focus();
-        else
-            UsernameBox.Focus();
+        // 聚焦到登入卡片（避免聚焦帳號/密碼框觸發鍵盤）
+        LoginCard.Focus();
 
         // 等 UI 事件處理完後解除壓制
         Dispatcher.BeginInvoke(() => _suppressKeypadOnce = false,
@@ -129,16 +135,12 @@ public partial class LoginPage : UserControl
         CloseButton.ToolTip = loc["Login.Close"];
     }
 
-    /// <summary>下拉選單選擇變更</summary>
+    /// <summary>下拉選單選擇變更 — 不自動聚焦密碼框（由使用者主動點選）</summary>
     private void UserDropdown_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         if (UserDropdown.SelectedItem != null)
         {
             PasswordBox.Password = ""; // 清除舊密碼
-
-            // 數字鍵盤模式：不自動聚焦密碼框（避免彈出鍵盤）
-            if (!_settings.NumericKeypadOnly)
-                PasswordBox.Focus();
         }
     }
 
@@ -157,31 +159,59 @@ public partial class LoginPage : UserControl
 
     private void InputBox_GotFocus(object sender, RoutedEventArgs e)
     {
-        // 動態數字鍵盤模式：密碼框 GotFocus 時改為彈出數字鍵盤
-        if (_settings.NumericKeypadOnly && sender is PasswordBox)
+        // 跳過初始化/登出後的自動聚焦
+        if (_suppressKeypadOnce)
+            return;
+
+        bool isPassword = sender is PasswordBox;
+
+        if (isPassword)
         {
-            // 跳過初始化時的自動聚焦
-            if (_suppressKeypadOnce)
-                return;
-            // 先失焦以避免實體鍵盤觸發
+            // === 密碼框：依設定決定鍵盤類型 ===
+            if (_settings.NumericKeypadOnly)
+            {
+                // 數字鍵盤
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    LoginCard.Focus();
+                    NumericKeypad.Show(
+                        password =>
+                        {
+                            PasswordBox.Password = password;
+                            _viewModel.Password = password;
+                        },
+                        () => { });
+                }));
+            }
+            else
+            {
+                // 一般觸控鍵盤（密碼模式）
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    LoginCard.Focus();
+                    TouchKeyboard.Show(true, _viewModel.Password ?? "",
+                        result =>
+                        {
+                            PasswordBox.Password = result;
+                            _viewModel.Password = result;
+                        },
+                        () => { });
+                }));
+            }
+        }
+        else if (sender is TextBox)
+        {
+            // === 帳號框：一般觸控鍵盤（帳號模式） ===
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                LoginCard.Focus(); // 將焦點移開 PasswordBox
-                NumericKeypad.Show(
-                    password =>
-                    {
-                        // 確認後將密碼回寫
-                        PasswordBox.Password = password;
-                        _viewModel.Password = password;
-                    },
-                    () =>
-                    {
-                        // 取消：不做任何事
-                    });
+                LoginCard.Focus();
+                TouchKeyboard.Show(false, _viewModel.Username ?? "",
+                    result => { _viewModel.Username = result; },
+                    () => { });
             }));
-            return;
         }
 
+        // 遊框高亮
         if (sender is FrameworkElement fe && fe.Parent is Border border)
         {
             border.BorderBrush = new SolidColorBrush(
@@ -200,16 +230,15 @@ public partial class LoginPage : UserControl
         }
     }
 
-    /// <summary>動態鍵盤模式：阻擋實體鍵盤輸入（包含 Tab 除外）</summary>
-    private void PasswordBox_PreviewKeyDown_Block(object sender, KeyEventArgs e)
+    /// <summary>觸控模式：阻擋實體鍵盤輸入（允許 Tab 導航）</summary>
+    private void InputBox_PreviewKeyDown_Block(object sender, KeyEventArgs e)
     {
-        // 允許 Tab 過（導航用），其他全擋
         if (e.Key != Key.Tab)
             e.Handled = true;
     }
 
-    /// <summary>動態鍵盤模式：阻擋文字輸入</summary>
-    private void PasswordBox_PreviewTextInput_Block(object sender, TextCompositionEventArgs e)
+    /// <summary>觸控模式：阻擋文字輸入</summary>
+    private void InputBox_PreviewTextInput_Block(object sender, TextCompositionEventArgs e)
     {
         e.Handled = true;
     }

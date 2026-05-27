@@ -290,6 +290,18 @@ public static class LocalizedStringSeed
             "✕ Cancel", "✕ 取消", "✕ 取消", "✕ キャンセル"));
 
         // ══════════════════════════════════════════
+        // TouchKeyboard 模組 — 觸控全鍵盤
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "TouchKeyboard", "TitleAccount",
+            "Enter Username", "輸入帳號", "输入账号", "ユーザー名入力"));
+        seeds.AddRange(CreateGroup(ref id, "TouchKeyboard", "TitlePassword",
+            "Enter Password", "輸入密碼", "输入密码", "パスワード入力"));
+        seeds.AddRange(CreateGroup(ref id, "TouchKeyboard", "Confirm",
+            "OK", "確認", "确认", "確認"));
+        seeds.AddRange(CreateGroup(ref id, "TouchKeyboard", "Space",
+            "Space", "空白", "空格", "スペース"));
+
+        // ══════════════════════════════════════════
         // AccountMgmt 模組 — 帳號管理頁面
         // ══════════════════════════════════════════
         seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "Title",
@@ -442,10 +454,10 @@ public static class LocalizedStringSeed
         seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "LabelRole",
             "Role", "角色", "角色", "ロール"));
         seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ServiceNotice",
-            "Service accounts are managed by IT/DB directly.",
-            "ℹ️ Service 帳號由 IT/DB 直接管理",
-            "ℹ️ Service 账号由 IT/DB 直接管理",
-            "ℹ️ サービスアカウントはIT/DBで直接管理"));
+            "Service accounts are managed by Plexbio directly.",
+            "ℹ️ Service 帳號由 Plexbio 直接管理",
+            "ℹ️ Service 账号由 Plexbio 直接管理",
+            "ℹ️ サービスアカウントはPlexbioで直接管理"));
         seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "InitPasswordNotice",
             "Initial password will be generated and displayed once.",
             "初始密碼由系統隨機產生並顯示一次。",
