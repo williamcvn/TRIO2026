@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using TRIO2026.App.Services;
@@ -15,6 +16,7 @@ public partial class LoginPage : UserControl
 {
     private readonly LoginViewModel _viewModel;
     private readonly SystemSettingService _settings;
+    private bool _suppressKeypadOnce = true; // 跳過初始化的自動聚焦
 
     /// <summary>登入成功事件 — Shell 收到後切換到 MenuPage</summary>
     public event EventHandler? LoginSucceeded;
@@ -78,6 +80,17 @@ public partial class LoginPage : UserControl
             {
                 UsernameBox.Focus();
             }
+
+            // 動態數字鍵盤模式：阻擋實體鍵盤輸入
+            if (_settings.NumericKeypadOnly)
+            {
+                PasswordBox.PreviewKeyDown += PasswordBox_PreviewKeyDown_Block;
+                PasswordBox.PreviewTextInput += PasswordBox_PreviewTextInput_Block;
+            }
+
+            // 初始化完成，解除壓制旗標（延遲一小段以確保 GotFocus 已處理完）
+            await Task.Delay(500);
+            _suppressKeypadOnce = false;
         };
     }
 
@@ -122,6 +135,31 @@ public partial class LoginPage : UserControl
 
     private void InputBox_GotFocus(object sender, RoutedEventArgs e)
     {
+        // 動態數字鍵盤模式：密碼框 GotFocus 時改為彈出數字鍵盤
+        if (_settings.NumericKeypadOnly && sender is PasswordBox)
+        {
+            // 跳過初始化時的自動聚焦
+            if (_suppressKeypadOnce)
+                return;
+            // 先失焦以避免實體鍵盤觸發
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                LoginCard.Focus(); // 將焦點移開 PasswordBox
+                NumericKeypad.Show(
+                    password =>
+                    {
+                        // 確認後將密碼回寫
+                        PasswordBox.Password = password;
+                        _viewModel.Password = password;
+                    },
+                    () =>
+                    {
+                        // 取消：不做任何事
+                    });
+            }));
+            return;
+        }
+
         if (sender is FrameworkElement fe && fe.Parent is Border border)
         {
             border.BorderBrush = new SolidColorBrush(
@@ -138,6 +176,20 @@ public partial class LoginPage : UserControl
                 (Color)ColorConverter.ConvertFromString("#4A6A9A"));
             border.BorderThickness = new Thickness(1.5);
         }
+    }
+
+    /// <summary>動態鍵盤模式：阻擋實體鍵盤輸入（包含 Tab 除外）</summary>
+    private void PasswordBox_PreviewKeyDown_Block(object sender, KeyEventArgs e)
+    {
+        // 允許 Tab 過（導航用），其他全擋
+        if (e.Key != Key.Tab)
+            e.Handled = true;
+    }
+
+    /// <summary>動態鍵盤模式：阻擋文字輸入</summary>
+    private void PasswordBox_PreviewTextInput_Block(object sender, TextCompositionEventArgs e)
+    {
+        e.Handled = true;
     }
 
     private void OnLoginSucceeded(object? sender, EventArgs e)

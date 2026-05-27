@@ -415,6 +415,9 @@ public partial class UserMenuControl : UserControl
             }
 
             await LocalizationService.Instance.SwitchLanguageAsync(langCode);
+
+            // 語系切換後更新手動設定的 UI 文字（如 BtnLogout.Tag）
+            RefreshUserDisplay();
         }
     }
 

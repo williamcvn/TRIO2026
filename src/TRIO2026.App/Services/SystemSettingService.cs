@@ -336,6 +336,14 @@ public class SystemSettingService
     public bool AdminRequireSpecial
         => GetLiveString("PasswordPolicy", "admin_require_special", "0") == "1";
 
+    /// <summary>
+    /// 是否啟用「僅限動態數字鍵盤輸入密碼」模式。
+    /// 啟用時：密碼只能透過隨機排列的數字鍵盤輸入，
+    /// 且自動忽略複雜度規則（[使用數字當作密碼]僅保留長度限制）。
+    /// </summary>
+    public bool NumericKeypadOnly
+        => PasswordPolicyEnabled && GetLiveString("PasswordPolicy", "numeric_keypad_only", "0") == "1";
+
     // ═══════════════════════════════════════
     // AccountMgmt 設定
     // ═══════════════════════════════════════
@@ -343,4 +351,20 @@ public class SystemSettingService
     /// <summary>是否啟用帳號手動鎖定/解鎖功能（控制 UI 按鈕可見性）</summary>
     public bool AccountLockEnabled
         => GetLiveString("AccountMgmt", "account_lock_enabled", "0") == "1";
+
+    /// <summary>
+    /// 帳號詳細資料要顯示的欄位 key 集合。
+    /// DB 值格式為逗號分隔，例: "Username,DisplayName,Role,Status"
+    /// </summary>
+    public HashSet<string> UserDetailVisibleFields
+    {
+        get
+        {
+            var raw = GetLiveString("AccountMgmt", "user_detail_visible_fields",
+                "Username,DisplayName,Role,Status,EmployeeId,Department,Email,LastLogin,PasswordChanged,ForceChange,LockedUntil,FailedCount,Created,CreatedBy,Notes");
+            return new HashSet<string>(
+                raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+                StringComparer.OrdinalIgnoreCase);
+        }
+    }
 }

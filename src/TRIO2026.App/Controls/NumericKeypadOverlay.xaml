@@ -1,0 +1,180 @@
+<UserControl x:Class="TRIO2026.App.Controls.NumericKeypadOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:svc="clr-namespace:TRIO2026.App.Services"
+             Visibility="Collapsed">
+
+    <UserControl.Resources>
+        <!-- 數字按鈕樣式 — 觸控優化，無 Hover 效果 -->
+        <Style x:Key="KeypadButton" TargetType="Button">
+            <Setter Property="FontSize" Value="36" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Width" Value="100" />
+            <Setter Property="Height" Value="80" />
+            <Setter Property="Margin" Value="6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder"
+                                Background="#3A5278"
+                                CornerRadius="12"
+                                BorderBrush="#4A6A9A"
+                                BorderThickness="1.5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#5580B0" />
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#80D8FF" />
+                                <Setter TargetName="BtnBorder" Property="BorderThickness" Value="2.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 功能按鈕樣式（退格/清除/確認） -->
+        <Style x:Key="FuncButton" TargetType="Button">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Width" Value="100" />
+            <Setter Property="Height" Value="80" />
+            <Setter Property="Margin" Value="6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder"
+                                Background="{TemplateBinding Tag}"
+                                CornerRadius="12"
+                                BorderBrush="#4A6A9A"
+                                BorderThickness="1.5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Opacity" Value="0.75" />
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#80D8FF" />
+                                <Setter TargetName="BtnBorder" Property="BorderThickness" Value="2.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- 半透明遮罩 -->
+    <Grid Background="#CC1A2538">
+        <!-- 鍵盤面板 -->
+        <Border x:Name="KeypadPanel"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                CornerRadius="20"
+                Padding="24,20"
+                MinWidth="400">
+            <Border.Background>
+                <SolidColorBrush Color="#2A3A5C" Opacity="0.97" />
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="40" ShadowDepth="0" Opacity="0.5" />
+            </Border.Effect>
+
+            <StackPanel>
+                <!-- 標題 -->
+                <TextBlock x:Name="TitleText"
+                           Text="{Binding [NumericKeypad.Title], Source={x:Static svc:LocalizationService.Instance}}"
+                           FontSize="24" FontWeight="SemiBold"
+                           Foreground="#B0BEC5"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,12" />
+
+                <!-- 密碼顯示區 -->
+                <Border Background="#1E2D45" CornerRadius="12"
+                        Height="64" Width="340" Margin="0,0,0,16"
+                        Padding="16,0"
+                        BorderBrush="#4A6A9A" BorderThickness="1"
+                        ClipToBounds="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="48" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="PasswordDisplay"
+                                   Grid.Column="0"
+                                   Text=""
+                                   FontSize="36" FontWeight="Bold" FontFamily="Consolas"
+                                   Foreground="#F0F4F8"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                        <!-- 眼睛切換按鈕 -->
+                        <Button x:Name="EyeToggle"
+                                Grid.Column="1"
+                                Content="👁"
+                                FontSize="22"
+                                Background="Transparent" BorderThickness="0"
+                                Foreground="#6688AA"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Width="48" Height="48"
+                                Click="EyeToggle_Click"
+                                Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="Transparent" CornerRadius="8">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- 數字鍵盤 4x3 網格 -->
+                <UniformGrid x:Name="KeypadGrid"
+                             Columns="3" Rows="4"
+                             HorizontalAlignment="Center" />
+
+                <!-- 底部功能按鈕列 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <Button Content="C" Style="{StaticResource FuncButton}"
+                            Tag="#8B4513" Click="ClearButton_Click" Width="152" />
+                    <Button x:Name="BtnConfirm"
+                            Content="{Binding [NumericKeypad.Confirm], Source={x:Static svc:LocalizationService.Instance}}"
+                            Style="{StaticResource FuncButton}"
+                            Tag="#2E7D32" Click="ConfirmButton_Click" Width="212"
+                            FontSize="28" />
+                </StackPanel>
+
+                <!-- 取消按鈕 -->
+                <Button x:Name="BtnCancel"
+                        Content="{Binding [NumericKeypad.Cancel], Source={x:Static svc:LocalizationService.Instance}}"
+                        FontSize="18" Foreground="#90A4AE"
+                        Background="Transparent" BorderThickness="0"
+                        HorizontalAlignment="Center"
+                        Margin="0,12,0,0"
+                        Height="48" Width="160"
+                        Click="CancelButton_Click"
+                        Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="Transparent" CornerRadius="8">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Opacity" Value="0.6" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

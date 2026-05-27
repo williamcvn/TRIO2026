@@ -91,6 +91,8 @@ public partial class App : Application
                 options.UseSqlite($"Data Source={Path.Combine(dbDir, "system_event.db")}"));
             services.AddDbContext<AppMainDbContext>(options =>
                 options.UseSqlite($"Data Source={Path.Combine(dbDir, "main.db")}"));
+            services.AddDbContext<DataDbContext>(options =>
+                options.UseSqlite($"Data Source={Path.Combine(dbDir, "data.db")}"));
 
             // Services
             services.AddSingleton<SessionService>();

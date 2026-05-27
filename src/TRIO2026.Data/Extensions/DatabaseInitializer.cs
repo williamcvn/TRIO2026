@@ -50,6 +50,7 @@ public static class DatabaseInitializer
         await InitializeSystemConfigDbAsync();
         await InitializeAppMainDbAsync(credentials);
         await InitializeEventLogDbAsync();
+        await InitializeDataDbAsync();
 
         // 初始化完成後安全銷毀密碼檔
         SeedCredentialProvider.DeleteCredentialFile(_databaseDir);
@@ -197,9 +198,26 @@ public static class DatabaseInitializer
         }
     }
 
-    // [已移除] InitializeMainDbAsync   — trio240plus_main.db 已廢棄
-    // [已移除] InitializeDataDbAsync    — trio240plus_data.db 已廢棄
+    // [已移除] InitializeMainDbAsync   — trio240plus_main.db 已廢棄（改用 main.db）
     // [已移除] InitializeLogDbAsync     — trio240plus_log.db 已廢棄（改用 system_event.db）
+
+    /// <summary>初始化 Data DB（data.db）— 實驗數據與報告</summary>
+    private static async Task InitializeDataDbAsync()
+    {
+        var dbPath = GetDatabasePath("data.db");
+        Console.WriteLine($"\n[InitializeDataDb] 初始化 data.db ...");
+
+        var options = new DbContextOptionsBuilder<DataDbContext>()
+            .UseSqlite($"Data Source={dbPath}")
+            .Options;
+
+        using var context = new DataDbContext(options);
+        await context.Database.EnsureCreatedAsync();
+        await SetPragmasAsync(context);
+
+        var recordCount = await context.TestRecords.CountAsync();
+        Console.WriteLine($"    data.db 現有 {recordCount} 筆 TestRecord");
+    }
 
     /// <summary>
     /// 設定 SQLite PRAGMA（WAL 模式、外鍵、快取等）

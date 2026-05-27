@@ -36,13 +36,22 @@ public static class SystemSettingSeed
                 Description = "是否啟用帳號手動鎖定/解鎖功能（0=按鈕隱藏；1=啟用）",
                 Remark = "✅ 已實作 — AccountManagementPage 控制鎖定/解鎖按鈕可見性"
             },
+            new()
+            {
+                Id = 2,
+                Category = "AccountMgmt",
+                Key = "user_detail_visible_fields",
+                Value = "Username,DisplayName,Role,Status,EmployeeId,Department,Email,LastLogin,PasswordChanged,ForceChange,LockedUntil,FailedCount,Created,CreatedBy,Notes",
+                Description = "帳號詳細資料顯示欄位（逗號分隔，移除不需要的欄位即可隱藏）全部欄位 (Username,DisplayName,Role,Status,EmployeeId,Department,Email,LastLogin,PasswordChanged,ForceChange,LockedUntil,FailedCount,Created,CreatedBy,Notes)",
+                Remark = "✅ 已實作 — AccountManagementPage.OnViewDetailsClick 讀取過濾"
+            },
 
             // ══════════════════════════════════════
             // AppClose — 關閉控制
             // ══════════════════════════════════════
             new()
             {
-                Id = 2,
+                Id = 3,
                 Category = "AppClose",
                 Key = "button_enabled",
                 Value = "0",
@@ -51,7 +60,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 3,
+                Id = 4,
                 Category = "AppClose",
                 Key = "esc_key_enabled",
                 Value = "1",
@@ -60,7 +69,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 4,
+                Id = 5,
                 Category = "AppClose",
                 Key = "alt_f4_enabled",
                 Value = "0",
@@ -73,7 +82,7 @@ public static class SystemSettingSeed
             // ══════════════════════════════════════
             new()
             {
-                Id = 5,
+                Id = 6,
                 Category = "Auth",
                 Key = "login_required",
                 Value = "0",
@@ -82,7 +91,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 6,
+                Id = 7,
                 Category = "Auth",
                 Key = "init_wait_seconds",
                 Value = "2",
@@ -91,7 +100,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 7,
+                Id = 8,
                 Category = "Auth",
                 Key = "default_role_level",
                 Value = "1",
@@ -100,7 +109,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 8,
+                Id = 9,
                 Category = "Auth",
                 Key = "guest_account_username",
                 Value = "local_operator",
@@ -109,7 +118,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 9,
+                Id = 10,
                 Category = "Auth",
                 Key = "guest_account_display_name",
                 Value = "Local Operator",
@@ -122,7 +131,7 @@ public static class SystemSettingSeed
             // ══════════════════════════════════════
             new()
             {
-                Id = 10,
+                Id = 11,
                 Category = "Device",
                 Key = "operation_mode",
                 Value = "IntelliPlex",
@@ -135,7 +144,7 @@ public static class SystemSettingSeed
             // ══════════════════════════════════════
             new()
             {
-                Id = 11,
+                Id = 12,
                 Category = "EventLog",
                 Key = "archive_interval",
                 Value = "monthly",
@@ -144,7 +153,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 12,
+                Id = 13,
                 Category = "EventLog",
                 Key = "backup_schedule_days",
                 Value = "30",
@@ -153,7 +162,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 13,
+                Id = 14,
                 Category = "EventLog",
                 Key = "last_archive_date",
                 Value = "",
@@ -162,7 +171,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 14,
+                Id = 15,
                 Category = "EventLog",
                 Key = "last_backup_date",
                 Value = "",
@@ -175,7 +184,7 @@ public static class SystemSettingSeed
             // ══════════════════════════════════════
             new()
             {
-                Id = 15,
+                Id = 16,
                 Category = "LoginUI",
                 Key = "show_user_dropdown",
                 Value = "0",
@@ -184,7 +193,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 16,
+                Id = 17,
                 Category = "LoginUI",
                 Key = "remember_password_enabled",
                 Value = "1",
@@ -193,7 +202,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 17,
+                Id = 18,
                 Category = "LoginUI",
                 Key = "max_failed_attempts",
                 Value = "5",
@@ -202,7 +211,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 18,
+                Id = 19,
                 Category = "LoginUI",
                 Key = "lockout_minutes",
                 Value = "15",
@@ -211,7 +220,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 19,
+                Id = 20,
                 Category = "LoginUI",
                 Key = "session_timeout_minutes",
                 Value = "30",
@@ -224,7 +233,7 @@ public static class SystemSettingSeed
             // ══════════════════════════════════════
             new()
             {
-                Id = 20,
+                Id = 21,
                 Category = "PasswordPolicy",
                 Key = "enabled",
                 Value = "1",
@@ -233,7 +242,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 21,
+                Id = 22,
                 Category = "PasswordPolicy",
                 Key = "operator_min_length",
                 Value = "6",
@@ -242,7 +251,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 22,
+                Id = 23,
                 Category = "PasswordPolicy",
                 Key = "operator_max_length",
                 Value = "20",
@@ -251,7 +260,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 23,
+                Id = 24,
                 Category = "PasswordPolicy",
                 Key = "operator_require_mixed",
                 Value = "0",
@@ -260,7 +269,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 24,
+                Id = 25,
                 Category = "PasswordPolicy",
                 Key = "operator_require_special",
                 Value = "0",
@@ -269,7 +278,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 25,
+                Id = 26,
                 Category = "PasswordPolicy",
                 Key = "admin_min_length",
                 Value = "10",
@@ -278,7 +287,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 26,
+                Id = 27,
                 Category = "PasswordPolicy",
                 Key = "admin_max_length",
                 Value = "64",
@@ -287,7 +296,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 27,
+                Id = 28,
                 Category = "PasswordPolicy",
                 Key = "admin_require_upper",
                 Value = "1",
@@ -296,7 +305,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 28,
+                Id = 29,
                 Category = "PasswordPolicy",
                 Key = "admin_require_lower",
                 Value = "1",
@@ -305,7 +314,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 29,
+                Id = 30,
                 Category = "PasswordPolicy",
                 Key = "admin_require_digit",
                 Value = "1",
@@ -314,12 +323,21 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 30,
+                Id = 31,
                 Category = "PasswordPolicy",
                 Key = "admin_require_special",
                 Value = "0",
                 Description = "Admin/Service 是否要求含特殊符號（預設停用）",
                 Remark = "✅ 已實作 — PasswordPolicyService"
+            },
+            new()
+            {
+                Id = 32,
+                Category = "PasswordPolicy",
+                Key = "numeric_keypad_only",
+                Value = "0",
+                Description = "[密碼格式為數字]僅限動態數字鍵盤輸入密碼（0=停用, 1=啟用；啟用時自動忽略複雜度規則，僅保留長度限制）",
+                Remark = "✅ 已實作 — LoginPage 動態數字鍵盤 + PasswordPolicyService 規則過濾"
             },
 
             // ══════════════════════════════════════
@@ -327,7 +345,7 @@ public static class SystemSettingSeed
             // ══════════════════════════════════════
             new()
             {
-                Id = 31,
+                Id = 33,
                 Category = "System",
                 Key = "multilanguage_enabled",
                 Value = "1",
@@ -336,7 +354,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 32,
+                Id = 34,
                 Category = "System",
                 Key = "default_language",
                 Value = "en",
@@ -345,7 +363,7 @@ public static class SystemSettingSeed
             },
             new()
             {
-                Id = 33,
+                Id = 35,
                 Category = "System",
                 Key = "login_screen_language_mode",
                 Value = "last_user",
@@ -358,7 +376,7 @@ public static class SystemSettingSeed
             // ══════════════════════════════════════
             new()
             {
-                Id = 34,
+                Id = 36,
                 Category = "UserMenu",
                 Key = "auto_close_seconds",
                 Value = "10",

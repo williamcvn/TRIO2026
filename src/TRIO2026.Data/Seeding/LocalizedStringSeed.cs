@@ -280,6 +280,16 @@ public static class LocalizedStringSeed
             "Account Management", "帳號管理", "账号管理", "アカウント管理"));
 
         // ══════════════════════════════════════════
+        // NumericKeypad 模組 — 動態數字鍵盤
+        // ══════════════════════════════════════════
+        seeds.AddRange(CreateGroup(ref id, "NumericKeypad", "Title",
+            "Enter Password", "輸入密碼", "输入密码", "パスワード入力"));
+        seeds.AddRange(CreateGroup(ref id, "NumericKeypad", "Confirm",
+            "✓ Confirm", "✓ 確認", "✓ 确认", "✓ 確認"));
+        seeds.AddRange(CreateGroup(ref id, "NumericKeypad", "Cancel",
+            "✕ Cancel", "✕ 取消", "✕ 取消", "✕ キャンセル"));
+
+        // ══════════════════════════════════════════
         // AccountMgmt 模組 — 帳號管理頁面
         // ══════════════════════════════════════════
         seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "Title",

@@ -68,18 +68,22 @@ public partial class PasswordPolicyService
                 string.Format(GetLocalized("PasswordUI.RuleMaxLength"), _settings.OperatorMaxLength),
                 password.Length == 0 || password.Length <= _settings.OperatorMaxLength));
 
-            if (_settings.OperatorRequireMixed)
+            // 動態數字鍵盤模式：忽略複雜度規則
+            if (!_settings.NumericKeypadOnly)
             {
-                rules.Add(new PolicyRule(
-                    GetLocalized("PasswordUI.RuleRequireMixed"),
-                    HasLetter(password) && HasDigit(password)));
-            }
+                if (_settings.OperatorRequireMixed)
+                {
+                    rules.Add(new PolicyRule(
+                        GetLocalized("PasswordUI.RuleRequireMixed"),
+                        HasLetter(password) && HasDigit(password)));
+                }
 
-            if (_settings.OperatorRequireSpecial)
-            {
-                rules.Add(new PolicyRule(
-                    GetLocalized("PasswordUI.RuleRequireSpecial"),
-                    HasSpecial(password)));
+                if (_settings.OperatorRequireSpecial)
+                {
+                    rules.Add(new PolicyRule(
+                        GetLocalized("PasswordUI.RuleRequireSpecial"),
+                        HasSpecial(password)));
+                }
             }
         }
         else
@@ -92,32 +96,36 @@ public partial class PasswordPolicyService
                 string.Format(GetLocalized("PasswordUI.RuleMaxLength"), _settings.AdminMaxLength),
                 password.Length == 0 || password.Length <= _settings.AdminMaxLength));
 
-            if (_settings.AdminRequireUpper)
+            // 動態數字鍵盤模式：忽略複雜度規則
+            if (!_settings.NumericKeypadOnly)
             {
-                rules.Add(new PolicyRule(
-                    GetLocalized("PasswordUI.RuleRequireUpper"),
-                    HasUpper(password)));
-            }
+                if (_settings.AdminRequireUpper)
+                {
+                    rules.Add(new PolicyRule(
+                        GetLocalized("PasswordUI.RuleRequireUpper"),
+                        HasUpper(password)));
+                }
 
-            if (_settings.AdminRequireLower)
-            {
-                rules.Add(new PolicyRule(
-                    GetLocalized("PasswordUI.RuleRequireLower"),
-                    HasLower(password)));
-            }
+                if (_settings.AdminRequireLower)
+                {
+                    rules.Add(new PolicyRule(
+                        GetLocalized("PasswordUI.RuleRequireLower"),
+                        HasLower(password)));
+                }
 
-            if (_settings.AdminRequireDigit)
-            {
-                rules.Add(new PolicyRule(
-                    GetLocalized("PasswordUI.RuleRequireDigit"),
-                    HasDigit(password)));
-            }
+                if (_settings.AdminRequireDigit)
+                {
+                    rules.Add(new PolicyRule(
+                        GetLocalized("PasswordUI.RuleRequireDigit"),
+                        HasDigit(password)));
+                }
 
-            if (_settings.AdminRequireSpecial)
-            {
-                rules.Add(new PolicyRule(
-                    GetLocalized("PasswordUI.RuleRequireSpecial"),
-                    HasSpecial(password)));
+                if (_settings.AdminRequireSpecial)
+                {
+                    rules.Add(new PolicyRule(
+                        GetLocalized("PasswordUI.RuleRequireSpecial"),
+                        HasSpecial(password)));
+                }
             }
         }
 
@@ -165,11 +173,15 @@ public partial class PasswordPolicyService
         if (password.Length > 72)
             return GetLocalized("PasswordUI.BCryptLimit");
 
-        if (_settings.OperatorRequireMixed && !(HasLetter(password) && HasDigit(password)))
-            return GetLocalized("PasswordUI.RuleRequireMixed");
+        // 動態數字鍵盤模式：忽略複雜度規則
+        if (!_settings.NumericKeypadOnly)
+        {
+            if (_settings.OperatorRequireMixed && !(HasLetter(password) && HasDigit(password)))
+                return GetLocalized("PasswordUI.RuleRequireMixed");
 
-        if (_settings.OperatorRequireSpecial && !HasSpecial(password))
-            return GetLocalized("PasswordUI.RuleRequireSpecial");
+            if (_settings.OperatorRequireSpecial && !HasSpecial(password))
+                return GetLocalized("PasswordUI.RuleRequireSpecial");
+        }
 
         return null;
     }
@@ -186,17 +198,21 @@ public partial class PasswordPolicyService
         if (password.Length > 72)
             return GetLocalized("PasswordUI.BCryptLimit");
 
-        if (_settings.AdminRequireUpper && !HasUpper(password))
-            return GetLocalized("PasswordUI.RuleRequireUpper");
+        // 動態數字鍵盤模式：忽略複雜度規則
+        if (!_settings.NumericKeypadOnly)
+        {
+            if (_settings.AdminRequireUpper && !HasUpper(password))
+                return GetLocalized("PasswordUI.RuleRequireUpper");
 
-        if (_settings.AdminRequireLower && !HasLower(password))
-            return GetLocalized("PasswordUI.RuleRequireLower");
+            if (_settings.AdminRequireLower && !HasLower(password))
+                return GetLocalized("PasswordUI.RuleRequireLower");
 
-        if (_settings.AdminRequireDigit && !HasDigit(password))
-            return GetLocalized("PasswordUI.RuleRequireDigit");
+            if (_settings.AdminRequireDigit && !HasDigit(password))
+                return GetLocalized("PasswordUI.RuleRequireDigit");
 
-        if (_settings.AdminRequireSpecial && !HasSpecial(password))
-            return GetLocalized("PasswordUI.RuleRequireSpecial");
+            if (_settings.AdminRequireSpecial && !HasSpecial(password))
+                return GetLocalized("PasswordUI.RuleRequireSpecial");
+        }
 
         return null;
     }

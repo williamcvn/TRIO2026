@@ -75,8 +75,13 @@ public partial class AccountManagementService
         if (exists)
             return (false, "USERNAME_EXISTS", null);
 
-        // 產生 12 碼隨機臨時密碼
-        var tempPassword = GenerateRandomPassword(12);
+        // 根據密碼規則產生隨機臨時密碼
+        var isNumericOnly = _systemSettings.NumericKeypadOnly;
+        var minLength = roleLevel == 1
+            ? _systemSettings.OperatorMinLength
+            : _systemSettings.AdminMinLength;
+        var passwordLength = Math.Max(minLength, 6);
+        var tempPassword = GenerateRandomPassword(passwordLength, isNumericOnly);
         var now = DateTime.UtcNow.ToString("O");
 
         var user = new User
@@ -230,6 +235,11 @@ public partial class AccountManagementService
     /// <summary>
     /// Admin 重設指定帳號密碼，回傳臨時密碼明文（只呼叫一次）
     /// 同時設定 ForcePasswordChange=1，清除 LockedUntil / FailedLoginCount
+    /// 
+    /// 密碼產生規則：
+    ///   - numeric_keypad_only=1 → 純數字密碼
+    ///   - 否則 → 英數混合密碼
+    ///   - 長度依角色的 min_length 設定（至少 6 碼）
     /// </summary>
     public async Task<(bool Success, string? Error, string? TempPassword)>
         ResetPasswordAsync(int userId, string operatorUsername)
@@ -240,8 +250,14 @@ public partial class AccountManagementService
         if (user == null)
             return (false, "User not found.", null);
 
-        // 產生 12 碼隨機臨時密碼
-        var tempPassword = GenerateRandomPassword(12);
+        // 根據角色和密碼規則決定臨時密碼長度與格式
+        var isNumericOnly = _systemSettings.NumericKeypadOnly;
+        var minLength = user.RoleLevel == 1
+            ? _systemSettings.OperatorMinLength
+            : _systemSettings.AdminMinLength;
+        var passwordLength = Math.Max(minLength, 6); // 至少 6 碼
+
+        var tempPassword = GenerateRandomPassword(passwordLength, isNumericOnly);
 
         user.PasswordHash = AuthService.HashPassword(tempPassword);
         user.ForcePasswordChange = 1;
@@ -278,35 +294,53 @@ public partial class AccountManagementService
     // 輔助方法
     // ═══════════════════════════════════════
 
-    /// <summary>產生指定長度的隨機密碼（大小寫英數混合）</summary>
-    private static string GenerateRandomPassword(int length)
+    /// <summary>
+    /// 產生指定長度的隨機密碼
+    /// </summary>
+    /// <param name="length">密碼長度</param>
+    /// <param name="numericOnly">true=僅數字（動態鍵盤模式），false=英數混合</param>
+    private static string GenerateRandomPassword(int length, bool numericOnly = false)
     {
-        const string upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";  // 排除 I, O 避免混淆
-        const string lower = "abcdefghjkmnpqrstuvwxyz";    // 排除 l, o 避免混淆
-        const string digits = "23456789";                    // 排除 0, 1 避免混淆
-        const string all = upper + lower + digits;
-
-        var result = new char[length];
         var rng = RandomNumberGenerator.Create();
         var bytes = new byte[length];
         rng.GetBytes(bytes);
 
-        // 確保至少包含一個大寫、小寫、數字
-        result[0] = upper[bytes[0] % upper.Length];
-        result[1] = lower[bytes[1] % lower.Length];
-        result[2] = digits[bytes[2] % digits.Length];
-
-        for (int i = 3; i < length; i++)
-            result[i] = all[bytes[i] % all.Length];
-
-        // Fisher-Yates shuffle
-        for (int i = length - 1; i > 0; i--)
+        if (numericOnly)
         {
-            var j = bytes[i] % (i + 1);
-            (result[i], result[j]) = (result[j], result[i]);
+            // 純數字密碼（0-9）
+            const string digits = "0123456789";
+            var result = new char[length];
+            for (int i = 0; i < length; i++)
+                result[i] = digits[bytes[i] % digits.Length];
+            return new string(result);
         }
+        else
+        {
+            // 英數混合密碼
+            const string upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";  // 排除 I, O 避免混淆
+            const string lower = "abcdefghjkmnpqrstuvwxyz";    // 排除 l, o 避免混淆
+            const string digits = "23456789";                    // 排除 0, 1 避免混淆
+            const string all = upper + lower + digits;
 
-        return new string(result);
+            var result = new char[length];
+
+            // 確保至少包含一個大寫、小寫、數字
+            result[0] = upper[bytes[0] % upper.Length];
+            result[1] = lower[bytes[1] % lower.Length];
+            result[2] = digits[bytes[2] % digits.Length];
+
+            for (int i = 3; i < length; i++)
+                result[i] = all[bytes[i] % all.Length];
+
+            // Fisher-Yates shuffle
+            for (int i = length - 1; i > 0; i--)
+            {
+                var j = bytes[i] % (i + 1);
+                (result[i], result[j]) = (result[j], result[i]);
+            }
+
+            return new string(result);
+        }
     }
 
     [GeneratedRegex(@"^[a-zA-Z0-9_]{3,20}$")]

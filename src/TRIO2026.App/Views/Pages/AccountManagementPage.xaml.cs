@@ -478,35 +478,45 @@ public partial class AccountManagementPage : UserControl
         if (_selectedUser == null) return;
 
         var loc = LocalizationService.Instance;
-        var details = new List<DetailItem>
+
+        // 每個欄位用 (fieldKey, label, value) 三元組定義
+        var allFields = new List<(string Key, string Label, string Value)>
         {
-            new(loc["AccountMgmt.DetailUsername"], _selectedUser.Username),
-            new(loc["AccountMgmt.DetailDisplayName"], _selectedUser.DisplayName ?? "-"),
-            new(loc["AccountMgmt.DetailRole"], GetRoleName(_selectedUser.RoleLevel, loc)),
-            new(loc["AccountMgmt.DetailStatus"], GetStatusText(_selectedUser, loc)),
-            new(loc["AccountMgmt.DetailEmployeeId"], _selectedUser.EmployeeId ?? loc["AccountMgmt.None"]),
-            new(loc["AccountMgmt.DetailDepartment"], _selectedUser.Department ?? loc["AccountMgmt.None"]),
-            new(loc["AccountMgmt.DetailEmail"], _selectedUser.Email ?? loc["AccountMgmt.None"]),
-            new(loc["AccountMgmt.DetailLastLogin"],
+            ("Username",        loc["AccountMgmt.DetailUsername"],         _selectedUser.Username),
+            ("DisplayName",     loc["AccountMgmt.DetailDisplayName"],     _selectedUser.DisplayName ?? "-"),
+            ("Role",            loc["AccountMgmt.DetailRole"],            GetRoleName(_selectedUser.RoleLevel, loc)),
+            ("Status",          loc["AccountMgmt.DetailStatus"],          GetStatusText(_selectedUser, loc)),
+            ("EmployeeId",      loc["AccountMgmt.DetailEmployeeId"],      _selectedUser.EmployeeId ?? loc["AccountMgmt.None"]),
+            ("Department",      loc["AccountMgmt.DetailDepartment"],      _selectedUser.Department ?? loc["AccountMgmt.None"]),
+            ("Email",           loc["AccountMgmt.DetailEmail"],           _selectedUser.Email ?? loc["AccountMgmt.None"]),
+            ("LastLogin",       loc["AccountMgmt.DetailLastLogin"],
                 string.IsNullOrEmpty(_selectedUser.LastLoginAt)
                     ? loc["AccountMgmt.None"]
                     : FormatIso8601(_selectedUser.LastLoginAt)),
-            new(loc["AccountMgmt.DetailPasswordChanged"],
+            ("PasswordChanged", loc["AccountMgmt.DetailPasswordChanged"],
                 string.IsNullOrEmpty(_selectedUser.PasswordChangedAt)
                     ? loc["AccountMgmt.None"]
                     : FormatIso8601(_selectedUser.PasswordChangedAt)),
-            new(loc["AccountMgmt.DetailForceChange"],
+            ("ForceChange",     loc["AccountMgmt.DetailForceChange"],
                 _selectedUser.ForcePasswordChange == 1 ? "⚠️ Yes" : "No"),
-            new(loc["AccountMgmt.DetailLockedUntil"],
+            ("LockedUntil",     loc["AccountMgmt.DetailLockedUntil"],
                 string.IsNullOrEmpty(_selectedUser.LockedUntil)
                     ? loc["AccountMgmt.NotLocked"]
                     : FormatIso8601(_selectedUser.LockedUntil)),
-            new(loc["AccountMgmt.DetailFailedCount"], _selectedUser.FailedLoginCount.ToString()),
-            new(loc["AccountMgmt.DetailCreated"],
+            ("FailedCount",     loc["AccountMgmt.DetailFailedCount"],     _selectedUser.FailedLoginCount.ToString()),
+            ("Created",         loc["AccountMgmt.DetailCreated"],
                 string.IsNullOrEmpty(_selectedUser.CreatedAt) ? "-" : FormatIso8601(_selectedUser.CreatedAt)),
-            new(loc["AccountMgmt.DetailCreatedBy"], _selectedUser.CreatedBy ?? "-"),
-            new(loc["AccountMgmt.DetailNotes"], _selectedUser.Notes ?? loc["AccountMgmt.None"]),
+            ("CreatedBy",       loc["AccountMgmt.DetailCreatedBy"],       _selectedUser.CreatedBy ?? "-"),
+            ("Notes",           loc["AccountMgmt.DetailNotes"],           _selectedUser.Notes ?? loc["AccountMgmt.None"]),
         };
+
+        // 從 DB 讀取要顯示的欄位（可透過 SystemSetting 設定）
+        var visibleKeys = _systemSettings.UserDetailVisibleFields;
+
+        var details = allFields
+            .Where(f => visibleKeys.Contains(f.Key))
+            .Select(f => new DetailItem(f.Label, f.Value))
+            .ToList();
 
         DetailsItemsPanel.ItemsSource = details;
 

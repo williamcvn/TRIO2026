@@ -339,5 +339,8 @@
                    FontSize="11" Foreground="#5577AA"
                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
                    Margin="0,0,20,12" />
+
+        <!-- 動態數字鍵盤覆蓋層（numeric_keypad_only=1 時啟用） -->
+        <controls:NumericKeypadOverlay x:Name="NumericKeypad" />
     </Grid>
 </UserControl>
