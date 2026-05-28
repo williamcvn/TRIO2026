@@ -86,6 +86,21 @@ public static class UserSeed
                 ForcePasswordChange = 0,
                 Notes = "免登入模式專用帳號。固定 Operator 權限。",
             },
+
+            // ── Guest 特殊帳號（免密碼登入，由 SystemSetting 控制啟停） ──
+            new()
+            {
+                Id = 99,
+                Username = "guest",
+                PasswordHash = "",              // 免密碼
+                RoleLevel = 1,                  // Operator（固定）
+                IsActive = 1,
+                CreatedAt = now,
+                CreatedBy = "SYSTEM",
+                DisplayName = "Anonymous",
+                ForcePasswordChange = 0,
+                Notes = "Guest 特殊帳號。免密碼登入，由 SystemSetting guest_login_enabled 控制啟停。",
+            },
         };
     }
 }

@@ -70,19 +70,31 @@ public partial class App : Application
             ex.SetObserved();
         };
 
+        // ── 啟動階段日誌（必須在 try 外宣告，確保 catch 也能寫入）──
+        TRIO2026.Data.Extensions.StartupLogger? startupLog = null;
+
         try
         {
             // 取得專案根目錄（Database/ 所在位置）
             var baseDir = FindProjectRoot();
             var dbDir = Path.Combine(baseDir, "Database");
 
+            startupLog = new TRIO2026.Data.Extensions.StartupLogger(dbDir);
+            startupLog.Info("App", "應用程式啟動", $"BaseDir={baseDir}");
+
             // 確保 Database 目錄存在
             if (!Directory.Exists(dbDir))
                 Directory.CreateDirectory(dbDir);
 
+            // ── DB 初始化（使用 StartupLogger 記錄）──
+            TRIO2026.Data.Extensions.DatabaseInitializer.SetDatabaseDirectory(dbDir);
+            TRIO2026.Data.Extensions.DatabaseInitializer.PasswordHasher =
+                pw => AuthService.HashPassword(pw);
+            TRIO2026.Data.Extensions.DatabaseInitializer.InitializeAllAsync()
+                .GetAwaiter().GetResult();
+
             // DI 容器
             var services = new ServiceCollection();
-
 
             // DbContext 註冊（新 DB）
             services.AddDbContext<SystemConfigDbContext>(options =>
@@ -111,47 +123,16 @@ public partial class App : Application
 
             _serviceProvider = services.BuildServiceProvider();
 
-            // 確保資料庫 schema 為最新版
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                scope.ServiceProvider.GetRequiredService<SystemConfigDbContext>().Database.Migrate();
-                scope.ServiceProvider.GetRequiredService<EventLogDbContext>().Database.Migrate();
-
-                var mainDb = scope.ServiceProvider.GetRequiredService<AppMainDbContext>();
-                mainDb.Database.Migrate();
-
-                // Schema auto-repair: 確保 User 表有 IsDeleted / DeletedAt / DeletedBy 欄位
-                var conn = mainDb.Database.GetDbConnection();
-                if (conn.State != System.Data.ConnectionState.Open) conn.Open();
-                using var pragmaCmd = conn.CreateCommand();
-                pragmaCmd.CommandText = "PRAGMA table_info(User)";
-                var existingCols = new HashSet<string>();
-                using (var reader = pragmaCmd.ExecuteReader())
-                {
-                    while (reader.Read()) existingCols.Add(reader.GetString(1));
-                }
-                var repairs = new Dictionary<string, string>
-                {
-                    ["IsDeleted"] = "ALTER TABLE User ADD COLUMN IsDeleted INTEGER NOT NULL DEFAULT 0",
-                    ["DeletedAt"] = "ALTER TABLE User ADD COLUMN DeletedAt TEXT",
-                    ["DeletedBy"] = "ALTER TABLE User ADD COLUMN DeletedBy TEXT"
-                };
-                foreach (var (col, sql) in repairs)
-                {
-                    if (!existingCols.Contains(col))
-                    {
-                        using var cmd = conn.CreateCommand();
-                        cmd.CommandText = sql;
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-
             // 初始化事件日誌服務
             var eventLog = _serviceProvider.GetRequiredService<EventLogService>();
             eventLog.SessionService = _serviceProvider.GetRequiredService<SessionService>();
             EventLogService.Instance = eventLog;
-            eventLog.LogInfo("System", "App", ErrorCodes.AppStartup, "應用程式啟動");
+
+            // 記錄啟動事件 + startup log 狀態
+            eventLog.LogInfo("System", "App", ErrorCodes.AppStartup, "應用程式啟動",
+                startupLog.HasErrors
+                    ? $"StartupLog=HasErrors, LogPath={startupLog.LogPath}"
+                    : $"StartupLog=OK, LogPath={startupLog.LogPath}");
 
             // 啟動歸檔檢查
             var archiveService = _serviceProvider.GetRequiredService<EventLogArchiveService>();
@@ -211,14 +192,22 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
+            // 嘗試寫入 EventLog（若已初始化）
             EventLogService.Instance?.LogException(
                 "System", "App", ex, ErrorCodes.UnhandledException, "啟動失敗");
+
+            // 寫入 StartupLogger（EventLogService 不可用時的 fallback）
+            startupLog?.Error("App", "啟動失敗", ex);
 
             MessageBox.Show(
                 $"Error ID: {ErrorCodes.UnhandledException}\n\n" +
                 $"{ex.Message}\n\n{ex.InnerException?.Message}",
                 "TRIO2026 啟動錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
+        }
+        finally
+        {
+            startupLog?.Dispose();
         }
     }
 

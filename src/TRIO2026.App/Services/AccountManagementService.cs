@@ -70,6 +70,11 @@ public partial class AccountManagementService
         if (roleLevel != 1 && roleLevel != 3)
             return (false, "INVALID_ROLE", null);
 
+        // 安全守衛：保留帳號名稱（系統特殊帳號不可透過 UI 建立）
+        var reserved = new[] { "guest", "local_operator", "system", "admin" };
+        if (reserved.Any(r => string.Equals(r, username, StringComparison.OrdinalIgnoreCase)))
+            return (false, "RESERVED_USERNAME", null);
+
         // 檢查 Username 唯一性（含已刪除帳號）
         var exists = await _db.Users.AnyAsync(u => u.Username == username);
         if (exists)
@@ -121,8 +126,8 @@ public partial class AccountManagementService
         if (user == null)
             return (false, "User not found.");
 
-        // 安全守衛：不可刪除 local_operator
-        if (user.Username == "local_operator")
+        // 安全守衛：不可刪除系統特殊帳號
+        if (user.Username is "local_operator" or "guest")
             return (false, "ERROR_SELF");
 
         // 安全守衛：不可刪除自己
@@ -171,6 +176,10 @@ public partial class AccountManagementService
         if (!active && user.Username == operatorUsername)
             return (false, "ERROR_SELF");
 
+        // 安全守衛：不可停用系統特殊帳號
+        if (!active && user.Username is "guest" or "local_operator")
+            return (false, "ERROR_SYSTEM_ACCOUNT");
+
         // 安全守衛：不可停用唯一啟用的 Admin
         if (!active && user.RoleLevel == 3)
         {
@@ -200,6 +209,10 @@ public partial class AccountManagementService
         // 安全守衛：不可鎖定自己
         if (user.Username == operatorUsername)
             return (false, "ERROR_SELF");
+
+        // 安全守衛：不可鎖定系統特殊帳號
+        if (user.Username is "guest" or "local_operator")
+            return (false, "ERROR_SYSTEM_ACCOUNT");
 
         user.LockedUntil = "9999-12-31T23:59:59.0000000+00:00";
         user.UpdatedAt = DateTime.UtcNow.ToString("O");
@@ -249,6 +262,10 @@ public partial class AccountManagementService
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsDeleted == 0);
         if (user == null)
             return (false, "User not found.", null);
+
+        // 安全守衛：不可重設系統特殊帳號密碼
+        if (user.Username is "guest" or "local_operator")
+            return (false, "ERROR_SYSTEM_ACCOUNT", null);
 
         // 根據角色和密碼規則決定臨時密碼長度與格式
         var isNumericOnly = _systemSettings.NumericKeypadOnly;

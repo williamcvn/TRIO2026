@@ -21,6 +21,9 @@ public class SessionService
     /// <summary>是否為免登入模式（Guest Session）</summary>
     public bool IsGuestMode { get; private set; }
 
+    /// <summary>是否為 Guest 免密碼登入（與 IsGuestMode 免登入模式不同）</summary>
+    public bool IsGuestLogin { get; private set; }
+
     /// <summary>當前使用者的角色等級</summary>
     public RoleLevel CurrentRole => IsAuthenticated
         ? (RoleLevel)CurrentUser!.RoleLevel
@@ -34,6 +37,7 @@ public class SessionService
     {
         CurrentUser = user;
         IsGuestMode = false;
+        IsGuestLogin = string.Equals(user.Username, "guest", StringComparison.OrdinalIgnoreCase);
         SessionChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -42,6 +46,7 @@ public class SessionService
     {
         CurrentUser = null;
         IsGuestMode = false;
+        IsGuestLogin = false;
         SessionChanged?.Invoke(this, EventArgs.Empty);
     }
 

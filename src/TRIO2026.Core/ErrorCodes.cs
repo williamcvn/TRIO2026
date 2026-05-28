@@ -63,4 +63,11 @@ public static class ErrorCodes
     public const string AccountLocked = "INF-8005";
     public const string AccountUnlocked = "INF-8006";
     public const string PasswordReset = "INF-8007";
+
+    // ── 9xxx Guest / Access Control ──
+    public const string GuestLoginSuccess = "INF-9001";
+    public const string GuestLoginBlocked = "WRN-9002";
+    public const string GuestNavigationBlocked = "WRN-9003";
+    public const string GuestRestrictionApplied = "INF-9004";
+    public const string SystemAccountGuard = "WRN-9005";
 }

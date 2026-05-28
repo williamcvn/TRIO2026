@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using TRIO2026.App.Controls;
 using TRIO2026.App.Services;
 using TRIO2026.App.Views;
+using TRIO2026.Core;
 
 namespace TRIO2026.App.Views.Pages;
 
@@ -32,6 +33,9 @@ public partial class MenuPage : UserControl
 
         // 根據 Device.operation_mode 控制按鈕啟用狀態
         ApplyOperationMode();
+
+        // Guest 登入時限制功能
+        ApplyGuestRestrictions();
     }
 
     /// <summary>
@@ -63,10 +67,27 @@ public partial class MenuPage : UserControl
         }
     }
 
+    /// <summary>
+    /// Guest 登入時限制 Setting / UV 功能
+    /// </summary>
+    private void ApplyGuestRestrictions()
+    {
+        if (_sessionService.IsGuestLogin)
+        {
+            BtnSetting.IsEnabled = false;
+            BtnUV.IsEnabled = false;
+            EventLogService.Instance?.LogInfo("UI", "MenuPage",
+                ErrorCodes.GuestRestrictionApplied,
+                "Guest Feature Restriction",
+                "Disabled=Setting,UV");
+        }
+    }
+
     /// <summary>供外部呼叫刷新使用者顯示</summary>
     public void RefreshUserDisplay()
     {
         UserMenu.RefreshUserDisplay();
+        ApplyGuestRestrictions();
     }
 
     // ── 功能按鈕 ──

@@ -154,6 +154,7 @@ public partial class CreateAccountOverlay : UserControl
             var msg = error switch
             {
                 "INVALID_USERNAME" => loc["AccountMgmt.InvalidUsername"],
+                "RESERVED_USERNAME" => loc["AccountMgmt.ReservedUsername"],
                 "USERNAME_EXISTS" => loc["AccountMgmt.UsernameExists"],
                 "INVALID_ROLE" => loc["AccountMgmt.ErrorServiceAdd"],
                 _ => error ?? "Unknown error"

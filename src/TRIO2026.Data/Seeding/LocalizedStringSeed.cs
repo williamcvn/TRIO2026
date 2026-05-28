@@ -398,6 +398,11 @@ public static class LocalizedStringSeed
             "帳號名稱須為 3~20 個英數字或底線。",
             "账号名称须为 3~20 个英数字或下划线。",
             "ユーザー名は3～20文字の英数字またはアンダースコアである必要があります。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ReservedUsername",
+            "This username is reserved for the system and cannot be used.",
+            "此帳號名稱為系統保留，無法使用。",
+            "此账号名称为系统保留，无法使用。",
+            "このユーザー名はシステム予約済みのため使用できません。"));
         seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "SuccessCreated",
             "Account created successfully.",
             "帳號建立成功。",
@@ -438,6 +443,11 @@ public static class LocalizedStringSeed
             "Service 帳號無法從介面刪除。",
             "Service 账号无法从界面删除。",
             "サービスアカウントはUIから削除できません。"));
+        seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ErrorSystemAccount",
+            "This is a system account and cannot be modified or deleted.",
+            "此為系統帳號，無法修改或刪除。",
+            "此为系统账号，无法修改或删除。",
+            "これはシステムアカウントのため変更・削除できません。"));
         seeds.AddRange(CreateGroup(ref id, "AccountMgmt", "ErrorServiceAdd",
             "Service accounts are managed by IT/DB directly.",
             "Service 帳號由 IT/DB 直接管理。",
@@ -527,6 +537,11 @@ public static class LocalizedStringSeed
             "系統錯誤",
             "系统错误",
             "システムエラー"));
+        seeds.AddRange(CreateGroup(ref id, "Login", "GuestHint",
+            "Guest account — tap Login to continue.",
+            "訪客帳號 — 請直接點選登入。",
+            "访客账号 — 请直接点击登录。",
+            "ゲストアカウント — ログインをタップしてください。"));
         seeds.AddRange(CreateGroup(ref id, "Login", "Username",
             "Username", "帳號", "账号", "ユーザー名"));
         seeds.AddRange(CreateGroup(ref id, "Login", "Password",

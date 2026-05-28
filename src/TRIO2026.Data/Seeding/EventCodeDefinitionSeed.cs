@@ -327,6 +327,50 @@ public static class EventCodeDefinitionSeed
             },
 
             // ══════════════════════════════════
+            // 9xxx — Guest / Access Control
+            // ══════════════════════════════════
+            new()
+            {
+                Id = 77, Code = "INF-9001", Category = "Guest", Severity = "Info",
+                Title = "Guest Login Success",
+                Description = "Guest 帳號免密碼登入成功",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 78, Code = "WRN-9002", Category = "Guest", Severity = "Warning",
+                Title = "Guest Login Blocked",
+                Description = "Guest 登入被阻擋（功能停用或帳號不存在）",
+                Resolution = "檢查 SystemSetting guest_login_enabled 設定",
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 79, Code = "WRN-9003", Category = "Guest", Severity = "Warning",
+                Title = "Guest Navigation Blocked",
+                Description = "Guest 帳號嘗試存取受限頁面（UV/Setting/AccountMgmt）",
+                Resolution = "正常安全行為，無需處理",
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 80, Code = "INF-9004", Category = "Guest", Severity = "Info",
+                Title = "Guest Restriction Applied",
+                Description = "Guest 功能限制已套用（密碼框停用/功能按鈕停用）",
+                Resolution = null,
+                UserMessageKey = null, UserMessageFallback = null
+            },
+            new()
+            {
+                Id = 81, Code = "WRN-9005", Category = "Guest", Severity = "Warning",
+                Title = "System Account Guard",
+                Description = "嘗試對系統帳號（guest/local_operator）執行受保護操作",
+                Resolution = "系統帳號不可修改或刪除",
+                UserMessageKey = null, UserMessageFallback = null
+            },
+
+            // ══════════════════════════════════
             // 9xxx — Dynamic / Unknown（動態註冊保留區段）
             // ══════════════════════════════════
             new()

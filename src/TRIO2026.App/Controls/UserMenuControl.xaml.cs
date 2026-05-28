@@ -143,7 +143,30 @@ public partial class UserMenuControl : UserControl
             var loc = LocalizationService.Instance;
             UserNameText.Text = user.DisplayName ?? user.Username;
 
-            if (_sessionService.IsGuestMode)
+            if (_sessionService.IsGuestLogin)
+            {
+                // ── Guest 免密碼登入模式：精簡選單 ──
+                UserRoleText.Visibility = Visibility.Collapsed;
+                BtnLogout.Tag = loc["UserMenu.Logout"];
+
+                // 隱藏所有管理功能按鈕
+                BtnServiceMode.Visibility = Visibility.Collapsed;
+                ServiceModeSeparator.Visibility = Visibility.Collapsed;
+                BtnChangePassword.Visibility = Visibility.Collapsed;
+                ChangePasswordSeparator.Visibility = Visibility.Collapsed;
+                BtnAccountMgmt.Visibility = Visibility.Collapsed;
+                AccountMgmtSeparator.Visibility = Visibility.Collapsed;
+
+                // Home 按鈕：依頁面位置決定
+                BtnHome.Visibility = ShowHomeButton ? Visibility.Visible : Visibility.Collapsed;
+                HomeSeparator.Visibility = ShowHomeButton ? Visibility.Visible : Visibility.Collapsed;
+
+                // 語系切換：由 guest_multilanguage_enabled 控制
+                var guestLangEnabled = _systemSettings?.GuestMultiLanguageEnabled ?? false;
+                BtnSwitchLanguage.Visibility = guestLangEnabled ? Visibility.Visible : Visibility.Collapsed;
+                LangSeparator.Visibility = guestLangEnabled ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else if (_sessionService.IsGuestMode)
             {
                 // 免登入模式：不顯示角色資訊
                 UserRoleText.Visibility = Visibility.Collapsed;

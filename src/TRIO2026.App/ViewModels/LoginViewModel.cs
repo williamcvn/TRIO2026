@@ -19,12 +19,15 @@ public class LoginViewModel : ViewModelBase
     private readonly AuthService _authService;
     private readonly SessionService _sessionService;
     private readonly TokenService _tokenService;
+    private readonly SystemSettingService _systemSettings;
 
-    public LoginViewModel(AuthService authService, SessionService sessionService, TokenService tokenService)
+    public LoginViewModel(AuthService authService, SessionService sessionService,
+        TokenService tokenService, SystemSettingService systemSettings)
     {
         _authService = authService;
         _sessionService = sessionService;
         _tokenService = tokenService;
+        _systemSettings = systemSettings;
 
         LoginCommand = new AsyncRelayCommand(ExecuteLoginAsync, _ => CanLogin);
 
@@ -43,7 +46,7 @@ public class LoginViewModel : ViewModelBase
     public string Username
     {
         get => _username;
-        set { SetProperty(ref _username, value); OnPropertyChanged(nameof(CanLogin)); }
+        set { SetProperty(ref _username, value); OnPropertyChanged(nameof(CanLogin)); OnPropertyChanged(nameof(IsGuestUser)); }
     }
 
     private string _password = string.Empty;
@@ -125,7 +128,10 @@ public class LoginViewModel : ViewModelBase
     {
         try
         {
-            var users = await _authService.GetAllUsersAsync();
+            // Guest 啟用時，下拉選單包含 guest 帳號
+            var users = _systemSettings.GuestLoginEnabled
+                ? await _authService.GetAllUsersWithGuestAsync()
+                : await _authService.GetAllUsersAsync();
             UserList.Clear();
             foreach (var u in users)
                 UserList.Add(u);
@@ -136,8 +142,12 @@ public class LoginViewModel : ViewModelBase
         }
     }
 
+    /// <summary>當前輸入的帳號是否為已啟用的 Guest 帳號</summary>
+    public bool IsGuestUser => _systemSettings.GuestLoginEnabled
+        && Username?.Trim().Equals("guest", StringComparison.OrdinalIgnoreCase) == true;
+
     public bool CanLogin => !string.IsNullOrWhiteSpace(Username) &&
-                            !string.IsNullOrWhiteSpace(Password) &&
+                            (IsGuestUser || !string.IsNullOrWhiteSpace(Password)) &&
                             !IsLoading;
 
     // ===== Commands =====
@@ -169,6 +179,39 @@ public class LoginViewModel : ViewModelBase
 
         try
         {
+            // Guest 免密碼登入
+            if (IsGuestUser)
+            {
+                // 資安檢查：必須 GuestLoginEnabled 才允許免密碼登入
+                if (!_systemSettings.GuestLoginEnabled)
+                {
+                    ErrorMessage = LocalizationService.Instance["Login.InvalidCredentials"];
+                    EventLogService.Instance?.LogAuth("GuestLogin", "guest", false,
+                        "Reason=GuestLoginDisabled (SystemSetting)");
+                    TriggerShake();
+                    return;
+                }
+
+                var guestUser = await _authService.GetUserByUsernameAsync("guest");
+                if (guestUser != null && guestUser.IsActive == 1)
+                {
+                    _sessionService.SetCurrentUser(guestUser);
+                    EventLogService.Instance?.LogAuth("GuestLogin", "guest", true, "PasswordBypass");
+
+                    // Guest 不記憶密碼
+                    _tokenService.ClearRememberedCredentials();
+
+                    LoginSucceeded?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                {
+                    ErrorMessage = LocalizationService.Instance["Login.AccountDisabled"];
+                    EventLogService.Instance?.LogAuth("GuestLogin", "guest", false, "Reason=GuestAccountDisabledOrNotFound");
+                    TriggerShake();
+                }
+                return;
+            }
+
             var (result, user) = await _authService.LoginAsync(Username, Password);
 
             switch (result)

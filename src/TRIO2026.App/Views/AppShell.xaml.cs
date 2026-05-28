@@ -113,6 +113,16 @@ public partial class AppShell : Window
         // 操作追蹤：頁面導航
         EventLogService.Instance.LogNavigation(fromPage, page);
 
+        // 資安守衛：Guest 帳號禁止進入受限頁面
+        if (_sessionService.IsGuestLogin && page is "uv" or "service" or "accountMgmt")
+        {
+            EventLogService.Instance?.LogWarning("Auth", "AppShell",
+                ErrorCodes.GuestNavigationBlocked,
+                "Guest Navigation Blocked",
+                $"From={fromPage ?? "None"}, Blocked={page}");
+            return;
+        }
+
         switch (page)
         {
             case "login":
@@ -156,7 +166,7 @@ public partial class AppShell : Window
 
     private LoginPage CreateLoginPage()
     {
-        var vm = new ViewModels.LoginViewModel(_authService, _sessionService, _tokenService);
+        var vm = new ViewModels.LoginViewModel(_authService, _sessionService, _tokenService, _systemSettings);
         var page = new LoginPage(vm, _systemSettings);
         page.LoginSucceeded += OnLoginSucceeded;
         page.CloseRequested += OnCloseRequested;
@@ -208,8 +218,8 @@ public partial class AppShell : Window
         if (user != null && !string.IsNullOrEmpty(user.LanguagePreference))
             _systemSettings.LastUserLanguage = user.LanguagePreference;
 
-        // ForcePasswordChange 檢查
-        if (user != null && user.ForcePasswordChange == 1)
+        // ForcePasswordChange 檢查（Guest 帳號跳過）
+        if (user != null && user.ForcePasswordChange == 1 && !_sessionService.IsGuestLogin)
         {
             var loc = LocalizationService.Instance;
 

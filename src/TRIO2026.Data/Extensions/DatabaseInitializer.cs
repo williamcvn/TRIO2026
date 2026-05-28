@@ -6,6 +6,9 @@ namespace TRIO2026.Data.Extensions;
 
 /// <summary>
 /// 資料庫初始化器：建立資料庫檔案、套用表結構、設定 PRAGMA、植入種子資料。
+/// 
+/// 所有日誌透過 StartupLogger 寫入 startup.log，
+/// 因為此階段 EventLogService 尚未初始化。
 /// </summary>
 public static class DatabaseInitializer
 {
@@ -38,10 +41,12 @@ public static class DatabaseInitializer
 
     public static async Task InitializeAllAsync()
     {
+        var log = StartupLogger.Current;
+
         // 確保 Database 目錄存在
         Directory.CreateDirectory(_databaseDir);
 
-        Console.WriteLine($"[DatabaseInitializer] 資料庫目錄: {_databaseDir}");
+        log?.Info("DatabaseInitializer", $"資料庫目錄: {_databaseDir}");
 
         // 載入或產生種子密碼（從外部檔案，不編譯進 DLL）
         var credentials = SeedCredentialProvider.LoadOrGenerate(_databaseDir);
@@ -55,7 +60,7 @@ public static class DatabaseInitializer
         // 初始化完成後安全銷毀密碼檔
         SeedCredentialProvider.DeleteCredentialFile(_databaseDir);
 
-        Console.WriteLine("[DatabaseInitializer] 全部初始化完成");
+        log?.Info("DatabaseInitializer", "全部初始化完成");
     }
 
     // [已移除] InitializeConfigDbAsync — trio240plus_config.db 已廢棄
@@ -65,136 +70,145 @@ public static class DatabaseInitializer
     {
         const string dbFile = "system_config.db";
         var dbPath = GetDatabasePath(dbFile);
-        Console.WriteLine($"  -> 初始化系統配置庫 ({dbFile})...");
+        var log = StartupLogger.Current;
+        log?.Info("DbInit", $"初始化系統配置庫 ({dbFile})...");
 
-        var options = new DbContextOptionsBuilder<SystemConfigDbContext>()
-            .UseSqlite($"Data Source={dbPath}")
-            .Options;
-
-        await using var context = new SystemConfigDbContext(options);
-        await context.Database.MigrateAsync();
-        Console.WriteLine($"    資料庫 Migration 完成");
-
-        await SetPragmasAsync(context);
-
-        // 植入 UvTimerOption 種子資料
-        if (!await context.UvTimerOptions.AnyAsync())
+        try
         {
-            var uvSeeds = UvTimerOptionSeed.GetSeedData();
-            context.UvTimerOptions.AddRange(uvSeeds);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已植入 {uvSeeds.Count} 筆 UV 照射時間選項");
-        }
-        else
-        {
-            Console.WriteLine($"    UV 照射時間選項已存在，跳過植入");
-        }
+            var options = new DbContextOptionsBuilder<SystemConfigDbContext>()
+                .UseSqlite($"Data Source={dbPath}")
+                .Options;
 
-        // 植入 LocalizedString 多語系種子資料（增量：只補入缺少的 key）
-        {
-            var i18nSeeds = LocalizedStringSeed.GetSeedData();
-            var existingKeys = await context.LocalizedStrings
-                .Select(s => s.Module + "." + s.ResourceKey + "." + s.LanguageCode)
-                .ToListAsync();
-            var existingSet = new HashSet<string>(existingKeys);
+            await using var context = new SystemConfigDbContext(options);
+            await context.Database.MigrateAsync();
+            log?.Info("DbInit", $"[{dbFile}] Migration 完成");
 
-            var newSeeds = i18nSeeds
-                .Where(s => !existingSet.Contains(s.Module + "." + s.ResourceKey + "." + s.LanguageCode))
-                .ToList();
+            await SetPragmasAsync(context);
 
-            if (newSeeds.Count > 0)
+            // 植入 UvTimerOption 種子資料
+            if (!await context.UvTimerOptions.AnyAsync())
             {
-                // 重新分配 ID，避免主鍵衝突
-                var maxId = await context.LocalizedStrings.AnyAsync()
-                    ? await context.LocalizedStrings.MaxAsync(s => s.Id)
-                    : 0;
-                foreach (var seed in newSeeds)
-                {
-                    seed.Id = ++maxId;
-                }
-
-                context.LocalizedStrings.AddRange(newSeeds);
+                var uvSeeds = UvTimerOptionSeed.GetSeedData();
+                context.UvTimerOptions.AddRange(uvSeeds);
                 await context.SaveChangesAsync();
-                Console.WriteLine($"    已補入 {newSeeds.Count} 筆多語系字串");
+                log?.Info("DbInit", $"[{dbFile}] 已植入 {uvSeeds.Count} 筆 UV 照射時間選項");
             }
             else
             {
-                Console.WriteLine($"    多語系字串已是最新，無需補入");
+                log?.Info("DbInit", $"[{dbFile}] UV 照射時間選項已存在，跳過植入");
+            }
+
+            // 植入 LocalizedString 多語系種子資料（增量：只補入缺少的 key）
+            {
+                var i18nSeeds = LocalizedStringSeed.GetSeedData();
+                var existingKeys = await context.LocalizedStrings
+                    .Select(s => s.Module + "." + s.ResourceKey + "." + s.LanguageCode)
+                    .ToListAsync();
+                var existingSet = new HashSet<string>(existingKeys);
+
+                var newSeeds = i18nSeeds
+                    .Where(s => !existingSet.Contains(s.Module + "." + s.ResourceKey + "." + s.LanguageCode))
+                    .ToList();
+
+                if (newSeeds.Count > 0)
+                {
+                    // 重新分配 ID，避免主鍵衝突
+                    var maxId = await context.LocalizedStrings.AnyAsync()
+                        ? await context.LocalizedStrings.MaxAsync(s => s.Id)
+                        : 0;
+                    foreach (var seed in newSeeds)
+                    {
+                        seed.Id = ++maxId;
+                    }
+
+                    context.LocalizedStrings.AddRange(newSeeds);
+                    await context.SaveChangesAsync();
+                    log?.Info("DbInit", $"[{dbFile}] 已補入 {newSeeds.Count} 筆多語系字串");
+                }
+                else
+                {
+                    log?.Info("DbInit", $"[{dbFile}] 多語系字串已是最新，無需補入");
+                }
+            }
+
+            // 確保 SystemSetting 表有 Remark 欄位（schema 升級）
+            {
+                var conn = context.Database.GetDbConnection();
+                if (conn.State != System.Data.ConnectionState.Open) await conn.OpenAsync();
+                using var pragmaCmd = conn.CreateCommand();
+                pragmaCmd.CommandText = "PRAGMA table_info(SystemSetting)";
+                var hasRemark = false;
+                using (var reader = await pragmaCmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        if (reader.GetString(1) == "Remark") hasRemark = true;
+                    }
+                }
+                if (!hasRemark)
+                {
+                    using var alterCmd = conn.CreateCommand();
+                    alterCmd.CommandText = "ALTER TABLE SystemSetting ADD COLUMN Remark TEXT";
+                    await alterCmd.ExecuteNonQueryAsync();
+                    log?.Info("DbInit", $"[{dbFile}] 已新增 Remark 欄位");
+                }
+            }
+
+            // 植入 SystemSetting 系統設定（增量：只補入缺少的 key）
+            {
+                var settingSeeds = SystemSettingSeed.GetSeedData();
+                var existingKeys = await context.SystemSettings
+                    .Select(s => s.Category + "." + s.Key)
+                    .ToListAsync();
+                var existingSet = new HashSet<string>(existingKeys);
+
+                var newSettings = settingSeeds
+                    .Where(s => !existingSet.Contains(s.Category + "." + s.Key))
+                    .ToList();
+
+                if (newSettings.Count > 0)
+                {
+                    var maxId = await context.SystemSettings.AnyAsync()
+                        ? await context.SystemSettings.MaxAsync(s => s.Id)
+                        : 0;
+                    foreach (var seed in newSettings)
+                    {
+                        seed.Id = ++maxId;
+                    }
+
+                    context.SystemSettings.AddRange(newSettings);
+                    await context.SaveChangesAsync();
+                    log?.Info("DbInit", $"[{dbFile}] 已補入 {newSettings.Count} 筆系統設定");
+                }
+                else
+                {
+                    log?.Info("DbInit", $"[{dbFile}] 系統設定已是最新，無需補入");
+                }
+
+                // 同步 Remark 備註（每次執行都從 Seed 更新到 DB）
+                var remarkUpdated = 0;
+                var allSettings = await context.SystemSettings.ToListAsync();
+                foreach (var seed in settingSeeds)
+                {
+                    var existing = allSettings.FirstOrDefault(
+                        s => s.Category == seed.Category && s.Key == seed.Key);
+                    if (existing != null && existing.Remark != seed.Remark)
+                    {
+                        existing.Remark = seed.Remark;
+                        remarkUpdated++;
+                    }
+                }
+                if (remarkUpdated > 0)
+                {
+                    await context.SaveChangesAsync();
+                    log?.Info("DbInit", $"[{dbFile}] 已更新 {remarkUpdated} 筆備註");
+                }
             }
         }
-
-        // 確保 SystemSetting 表有 Remark 欄位（schema 升級）
+        catch (Exception ex)
         {
-            var conn = context.Database.GetDbConnection();
-            if (conn.State != System.Data.ConnectionState.Open) await conn.OpenAsync();
-            using var pragmaCmd = conn.CreateCommand();
-            pragmaCmd.CommandText = "PRAGMA table_info(SystemSetting)";
-            var hasRemark = false;
-            using (var reader = await pragmaCmd.ExecuteReaderAsync())
-            {
-                while (await reader.ReadAsync())
-                {
-                    if (reader.GetString(1) == "Remark") hasRemark = true;
-                }
-            }
-            if (!hasRemark)
-            {
-                using var alterCmd = conn.CreateCommand();
-                alterCmd.CommandText = "ALTER TABLE SystemSetting ADD COLUMN Remark TEXT";
-                await alterCmd.ExecuteNonQueryAsync();
-                Console.WriteLine("    已新增 Remark 欄位");
-            }
-        }
-
-        // 植入 SystemSetting 系統設定（增量：只補入缺少的 key）
-        {
-            var settingSeeds = SystemSettingSeed.GetSeedData();
-            var existingKeys = await context.SystemSettings
-                .Select(s => s.Category + "." + s.Key)
-                .ToListAsync();
-            var existingSet = new HashSet<string>(existingKeys);
-
-            var newSettings = settingSeeds
-                .Where(s => !existingSet.Contains(s.Category + "." + s.Key))
-                .ToList();
-
-            if (newSettings.Count > 0)
-            {
-                var maxId = await context.SystemSettings.AnyAsync()
-                    ? await context.SystemSettings.MaxAsync(s => s.Id)
-                    : 0;
-                foreach (var seed in newSettings)
-                {
-                    seed.Id = ++maxId;
-                }
-
-                context.SystemSettings.AddRange(newSettings);
-                await context.SaveChangesAsync();
-                Console.WriteLine($"    已補入 {newSettings.Count} 筆系統設定");
-            }
-            else
-            {
-                Console.WriteLine($"    系統設定已是最新，無需補入");
-            }
-
-            // 同步 Remark 備註（每次執行都從 Seed 更新到 DB）
-            var remarkUpdated = 0;
-            var allSettings = await context.SystemSettings.ToListAsync();
-            foreach (var seed in settingSeeds)
-            {
-                var existing = allSettings.FirstOrDefault(
-                    s => s.Category == seed.Category && s.Key == seed.Key);
-                if (existing != null && existing.Remark != seed.Remark)
-                {
-                    existing.Remark = seed.Remark;
-                    remarkUpdated++;
-                }
-            }
-            if (remarkUpdated > 0)
-            {
-                await context.SaveChangesAsync();
-                Console.WriteLine($"    已更新 {remarkUpdated} 筆備註");
-            }
+            log?.Error("DbInit", $"[{dbFile}] 初始化失敗", ex);
+            throw; // 重新拋出讓上層處理
         }
     }
 
@@ -205,18 +219,27 @@ public static class DatabaseInitializer
     private static async Task InitializeDataDbAsync()
     {
         var dbPath = GetDatabasePath("data.db");
-        Console.WriteLine($"\n[InitializeDataDb] 初始化 data.db ...");
+        var log = StartupLogger.Current;
+        log?.Info("DbInit", "初始化 data.db ...");
 
-        var options = new DbContextOptionsBuilder<DataDbContext>()
-            .UseSqlite($"Data Source={dbPath}")
-            .Options;
+        try
+        {
+            var options = new DbContextOptionsBuilder<DataDbContext>()
+                .UseSqlite($"Data Source={dbPath}")
+                .Options;
 
-        using var context = new DataDbContext(options);
-        await context.Database.EnsureCreatedAsync();
-        await SetPragmasAsync(context);
+            using var context = new DataDbContext(options);
+            await context.Database.EnsureCreatedAsync();
+            await SetPragmasAsync(context);
 
-        var recordCount = await context.TestRecords.CountAsync();
-        Console.WriteLine($"    data.db 現有 {recordCount} 筆 TestRecord");
+            var recordCount = await context.TestRecords.CountAsync();
+            log?.Info("DbInit", $"[data.db] 現有 {recordCount} 筆 TestRecord");
+        }
+        catch (Exception ex)
+        {
+            log?.Error("DbInit", "[data.db] 初始化失敗", ex);
+            throw;
+        }
     }
 
     /// <summary>
@@ -243,7 +266,7 @@ public static class DatabaseInitializer
             await cmd.ExecuteNonQueryAsync();
         }
 
-        Console.WriteLine($"    PRAGMA 設定完成");
+        StartupLogger.Current?.Info("DbInit", "PRAGMA 設定完成");
     }
 
     /// <summary>初始化 EventLog DB（system_event.db）— Migration + EventCodeDefinition 種子</summary>
@@ -252,76 +275,92 @@ public static class DatabaseInitializer
         const string dbFile = "system_event.db";
         var dbPath = GetDatabasePath(dbFile);
         var isNew = !File.Exists(dbPath);
+        var log = StartupLogger.Current;
 
-        Console.WriteLine($"  -> 初始化事件日誌庫 ({dbFile})...");
+        log?.Info("DbInit", $"初始化事件日誌庫 ({dbFile})...");
 
-        var options = new DbContextOptionsBuilder<EventLogDbContext>()
-            .UseSqlite($"Data Source={dbPath}")
-            .Options;
-
-        using var context = new EventLogDbContext(options);
-        await context.Database.MigrateAsync();
-        Console.WriteLine(isNew ? "    資料庫已建立" : "    資料庫 Migration 完成");
-
-        // Schema 遷移：將舊表名 ErrorDefinition 重命名為 EventCodeDefinition
-        var conn = context.Database.GetDbConnection();
-        await conn.OpenAsync();
-        using (var cmd = conn.CreateCommand())
+        try
         {
-            cmd.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='ErrorDefinition'";
-            var oldExists = await cmd.ExecuteScalarAsync();
-            if (oldExists != null)
+            var options = new DbContextOptionsBuilder<EventLogDbContext>()
+                .UseSqlite($"Data Source={dbPath}")
+                .Options;
+
+            using var context = new EventLogDbContext(options);
+            await context.Database.MigrateAsync();
+            log?.Info("DbInit", isNew
+                ? $"[{dbFile}] 資料庫已建立"
+                : $"[{dbFile}] Migration 完成");
+
+            // Schema 遷移：將舊表名 ErrorDefinition 重命名為 EventCodeDefinition
+            var conn = context.Database.GetDbConnection();
+            await conn.OpenAsync();
+            using (var cmd = conn.CreateCommand())
             {
-                using var renameCmd = conn.CreateCommand();
-                renameCmd.CommandText = "ALTER TABLE ErrorDefinition RENAME TO EventCodeDefinition";
-                await renameCmd.ExecuteNonQueryAsync();
-                Console.WriteLine("    已將 ErrorDefinition 表重命名為 EventCodeDefinition");
+                cmd.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='ErrorDefinition'";
+                var oldExists = await cmd.ExecuteScalarAsync();
+                if (oldExists != null)
+                {
+                    using var renameCmd = conn.CreateCommand();
+                    renameCmd.CommandText = "ALTER TABLE ErrorDefinition RENAME TO EventCodeDefinition";
+                    await renameCmd.ExecuteNonQueryAsync();
+                    log?.Info("DbInit", $"[{dbFile}] 已將 ErrorDefinition 表重命名為 EventCodeDefinition");
+                }
             }
-        }
 
-        // 增量植入 + 同步更新 EventCodeDefinition（by Id）
-        var seedErrors = EventCodeDefinitionSeed.GetSeedData();
-        var existingAll = context.EventCodeDefinitions.ToList();
-        var existingIds = existingAll.Select(e => e.Id).ToHashSet();
+            // 增量植入 + 同步更新 EventCodeDefinition（by Id + Code）
+            var seedErrors = EventCodeDefinitionSeed.GetSeedData();
+            var existingAll = context.EventCodeDefinitions.ToList();
+            var existingIds = existingAll.Select(e => e.Id).ToHashSet();
+            var existingCodes = existingAll.Select(e => e.Code).ToHashSet();
 
-        // 補入新記錄
-        var newErrors = seedErrors.Where(s => !existingIds.Contains(s.Id)).ToList();
-        if (newErrors.Count > 0)
-        {
-            context.EventCodeDefinitions.AddRange(newErrors);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已補入 {newErrors.Count} 筆事件定義");
-        }
-
-        // 同步既有記錄的 Code / Severity 等欄位
-        var codeUpdated = 0;
-        foreach (var seed in seedErrors)
-        {
-            var existing = existingAll.FirstOrDefault(e => e.Id == seed.Id);
-            if (existing != null && existing.Code != seed.Code)
+            // 補入新記錄（Id 和 Code 都不存在才插入，避免唯一約束衝突）
+            var newErrors = seedErrors
+                .Where(s => !existingIds.Contains(s.Id) && !existingCodes.Contains(s.Code))
+                .ToList();
+            if (newErrors.Count > 0)
             {
-                existing.Code = seed.Code;
-                existing.Severity = seed.Severity;
-                existing.Title = seed.Title;
-                existing.Description = seed.Description;
-                existing.Resolution = seed.Resolution;
-                existing.UserMessageKey = seed.UserMessageKey;
-                existing.UserMessageFallback = seed.UserMessageFallback;
-                codeUpdated++;
+                context.EventCodeDefinitions.AddRange(newErrors);
+                await context.SaveChangesAsync();
+                log?.Info("DbInit", $"[{dbFile}] 已補入 {newErrors.Count} 筆事件定義",
+                    $"Codes={string.Join(", ", newErrors.Select(e => e.Code))}");
             }
-        }
-        if (codeUpdated > 0)
-        {
-            await context.SaveChangesAsync();
-            Console.WriteLine($"    已更新 {codeUpdated} 筆事件代碼");
-        }
 
-        if (newErrors.Count == 0 && codeUpdated == 0)
-        {
-            Console.WriteLine("    事件定義已是最新，無需補入");
-        }
+            // 同步既有記錄的欄位（按 Id 匹配，更新有差異的欄位）
+            var codeUpdated = 0;
+            foreach (var seed in seedErrors)
+            {
+                var existing = existingAll.FirstOrDefault(e => e.Id == seed.Id);
+                if (existing == null) continue;
 
-        await SetPragmasAsync(context);
+                var changed = false;
+                if (existing.Code != seed.Code) { existing.Code = seed.Code; changed = true; }
+                if (existing.Severity != seed.Severity) { existing.Severity = seed.Severity; changed = true; }
+                if (existing.Title != seed.Title) { existing.Title = seed.Title; changed = true; }
+                if (existing.Description != seed.Description) { existing.Description = seed.Description; changed = true; }
+                if (existing.Resolution != seed.Resolution) { existing.Resolution = seed.Resolution; changed = true; }
+                if (existing.UserMessageKey != seed.UserMessageKey) { existing.UserMessageKey = seed.UserMessageKey; changed = true; }
+                if (existing.UserMessageFallback != seed.UserMessageFallback) { existing.UserMessageFallback = seed.UserMessageFallback; changed = true; }
+
+                if (changed) codeUpdated++;
+            }
+            if (codeUpdated > 0)
+            {
+                await context.SaveChangesAsync();
+                log?.Info("DbInit", $"[{dbFile}] 已更新 {codeUpdated} 筆事件代碼");
+            }
+
+            if (newErrors.Count == 0 && codeUpdated == 0)
+            {
+                log?.Info("DbInit", $"[{dbFile}] 事件定義已是最新，無需補入");
+            }
+
+            await SetPragmasAsync(context);
+        }
+        catch (Exception ex)
+        {
+            log?.Error("DbInit", $"[{dbFile}] 初始化失敗", ex);
+            throw;
+        }
     }
 
     /// <summary>初始化正式業務核心庫（main.db）— User 表 + 種子資料</summary>
@@ -330,70 +369,96 @@ public static class DatabaseInitializer
         const string dbFile = "main.db";
         var dbPath = GetDatabasePath(dbFile);
         var isNew = !File.Exists(dbPath);
+        var log = StartupLogger.Current;
 
-        Console.WriteLine($"  -> 初始化正式業務核心庫 ({dbFile})...");
+        log?.Info("DbInit", $"初始化正式業務核心庫 ({dbFile})...");
 
-        var options = new DbContextOptionsBuilder<AppMainDbContext>()
-            .UseSqlite($"Data Source={dbPath}")
-            .Options;
-
-        using var context = new AppMainDbContext(options);
-        await context.Database.MigrateAsync();
-        Console.WriteLine(isNew ? "    資料庫已建立" : "    資料庫 Migration 完成");
-
-        // Schema 遷移：確保 User 表有 IsDeleted / DeletedAt / DeletedBy 欄位
+        try
         {
-            var conn = context.Database.GetDbConnection();
-            if (conn.State != System.Data.ConnectionState.Open) await conn.OpenAsync();
+            var options = new DbContextOptionsBuilder<AppMainDbContext>()
+                .UseSqlite($"Data Source={dbPath}")
+                .Options;
 
-            // 讀取現有欄位
-            using var pragmaCmd = conn.CreateCommand();
-            pragmaCmd.CommandText = "PRAGMA table_info(User)";
-            var existingColumns = new HashSet<string>();
-            using (var reader = await pragmaCmd.ExecuteReaderAsync())
-            {
-                while (await reader.ReadAsync())
-                    existingColumns.Add(reader.GetString(1));
-            }
+            using var context = new AppMainDbContext(options);
+            await context.Database.MigrateAsync();
+            log?.Info("DbInit", isNew
+                ? $"[{dbFile}] 資料庫已建立"
+                : $"[{dbFile}] Migration 完成");
 
-            // 需要的新欄位（名稱 → ALTER TABLE SQL）
-            var requiredColumns = new Dictionary<string, string>
+            // Schema 遷移：確保 User 表有 IsDeleted / DeletedAt / DeletedBy 欄位
             {
-                ["IsDeleted"] = "ALTER TABLE User ADD COLUMN IsDeleted INTEGER NOT NULL DEFAULT 0",
-                ["DeletedAt"] = "ALTER TABLE User ADD COLUMN DeletedAt TEXT",
-                ["DeletedBy"] = "ALTER TABLE User ADD COLUMN DeletedBy TEXT"
-            };
+                var conn = context.Database.GetDbConnection();
+                if (conn.State != System.Data.ConnectionState.Open) await conn.OpenAsync();
 
-            foreach (var (col, sql) in requiredColumns)
-            {
-                if (!existingColumns.Contains(col))
+                // 讀取現有欄位
+                using var pragmaCmd = conn.CreateCommand();
+                pragmaCmd.CommandText = "PRAGMA table_info(User)";
+                var existingColumns = new HashSet<string>();
+                using (var reader = await pragmaCmd.ExecuteReaderAsync())
                 {
-                    using var alterCmd = conn.CreateCommand();
-                    alterCmd.CommandText = sql;
-                    await alterCmd.ExecuteNonQueryAsync();
-                    Console.WriteLine($"    已新增 User.{col} 欄位");
+                    while (await reader.ReadAsync())
+                        existingColumns.Add(reader.GetString(1));
+                }
+
+                // 需要的新欄位（名稱 → ALTER TABLE SQL）
+                var requiredColumns = new Dictionary<string, string>
+                {
+                    ["IsDeleted"] = "ALTER TABLE User ADD COLUMN IsDeleted INTEGER NOT NULL DEFAULT 0",
+                    ["DeletedAt"] = "ALTER TABLE User ADD COLUMN DeletedAt TEXT",
+                    ["DeletedBy"] = "ALTER TABLE User ADD COLUMN DeletedBy TEXT"
+                };
+
+                foreach (var (col, sql) in requiredColumns)
+                {
+                    if (!existingColumns.Contains(col))
+                    {
+                        using var alterCmd = conn.CreateCommand();
+                        alterCmd.CommandText = sql;
+                        await alterCmd.ExecuteNonQueryAsync();
+                        log?.Info("DbInit", $"[{dbFile}] 已新增 User.{col} 欄位");
+                    }
                 }
             }
-        }
 
-        // 增量植入 User（按 Id 補入缺少的帳號）
+            // 增量植入 User（按 Id + Username 補入缺少的帳號）
+            {
+                var users = UserSeed.GetSeedData(credentials, PasswordHasher);
+                var existingIds = context.Users.Select(u => u.Id).ToHashSet();
+                var existingUsernames = context.Users.Select(u => u.Username).ToHashSet();
+
+                var newUsers = users
+                    .Where(u => !existingIds.Contains(u.Id) && !existingUsernames.Contains(u.Username))
+                    .ToList();
+
+                // 偵測 Id 衝突：Seed 中的 Id 已被其他帳號佔用
+                var idConflicts = users
+                    .Where(u => existingIds.Contains(u.Id) && !existingUsernames.Contains(u.Username))
+                    .ToList();
+                foreach (var conflict in idConflicts)
+                {
+                    log?.Warn("DbInit", $"[{dbFile}] Seed 帳號跳過：Id={conflict.Id} 已被佔用",
+                        $"Username={conflict.Username} 未被建立，請檢查 UserSeed Id 配置");
+                }
+
+                if (newUsers.Count > 0)
+                {
+                    context.Users.AddRange(newUsers);
+                    await context.SaveChangesAsync();
+                    log?.Info("DbInit", $"[{dbFile}] 已補入 {newUsers.Count} 筆使用者帳號",
+                        $"Users={string.Join(", ", newUsers.Select(u => u.Username))}");
+                }
+                else if (idConflicts.Count == 0)
+                {
+                    log?.Info("DbInit", $"[{dbFile}] 使用者帳號已是最新，無需補入");
+                }
+            }
+
+            await SetPragmasAsync(context);
+        }
+        catch (Exception ex)
         {
-            var users = UserSeed.GetSeedData(credentials, PasswordHasher);
-            var existingIds = context.Users.Select(u => u.Id).ToHashSet();
-            var newUsers = users.Where(u => !existingIds.Contains(u.Id)).ToList();
-
-            if (newUsers.Count > 0)
-            {
-                context.Users.AddRange(newUsers);
-                await context.SaveChangesAsync();
-                Console.WriteLine($"    已補入 {newUsers.Count} 筆使用者帳號");
-            }
-            else
-            {
-                Console.WriteLine("    使用者帳號已是最新，無需補入");
-            }
+            log?.Error("DbInit", $"[{dbFile}] 初始化失敗", ex);
+            throw;
         }
-
-        await SetPragmasAsync(context);
     }
 }

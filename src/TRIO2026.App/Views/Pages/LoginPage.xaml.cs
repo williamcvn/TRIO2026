@@ -43,6 +43,11 @@ public partial class LoginPage : UserControl
                 var storyboard = (Storyboard)FindResource("ShakeAnimation");
                 storyboard.Begin(LoginCard);
             }
+            // Guest 帳號狀態變更時更新密碼框
+            if (e.PropertyName == nameof(LoginViewModel.IsGuestUser))
+            {
+                UpdateGuestPasswordState();
+            }
         };
 
         // 關閉按鈕（受 DB 控制 — 讀取 system_config.db）
@@ -135,6 +140,9 @@ public partial class LoginPage : UserControl
             EventLogService.Instance?.LogInfo("Auth", "LoginPage",
                 ErrorCodes.UiInput, "UserDropdown Changed",
                 $"SelectedUser={selectedUser}");
+
+            // Guest 帳號檢查
+            UpdateGuestPasswordState();
         }
     }
 
@@ -201,7 +209,12 @@ public partial class LoginPage : UserControl
             {
                 LoginCard.Focus();
                 TouchKeyboard.Show(false, _viewModel.Username ?? "",
-                    result => { _viewModel.Username = result; },
+                    result =>
+                    {
+                        _viewModel.Username = result;
+                        // 觸控鍵盤關閉後檢查 Guest 狀態
+                        UpdateGuestPasswordState();
+                    },
                     () => { });
             }));
         }
@@ -241,5 +254,37 @@ public partial class LoginPage : UserControl
     private void OnLoginSucceeded(object? sender, EventArgs e)
     {
         LoginSucceeded?.Invoke(this, EventArgs.Empty);
+    }
+
+    // ═══════════════════════════════════════
+    // Guest 帳號密碼框控制
+    // ═══════════════════════════════════════
+
+    /// <summary>
+    /// 檢查當前帳號是否為 Guest，並控制密碼框啟用/停用狀態
+    /// - Guest + GuestLoginEnabled: 密碼框 disable，清空密碼
+    /// - 其他: 密碼框 enable
+    /// </summary>
+    private void UpdateGuestPasswordState()
+    {
+        bool isGuest = _viewModel.IsGuestUser && _settings.GuestLoginEnabled;
+        PasswordBox.IsEnabled = !isGuest;
+        ChkRemember.IsEnabled = !isGuest;
+
+        // Guest 提示文字
+        GuestHintText.Visibility = isGuest ? Visibility.Visible : Visibility.Collapsed;
+        if (isGuest)
+        {
+            GuestHintText.Text = LocalizationService.Instance["Login.GuestHint"];
+
+            PasswordBox.Password = "";
+            _viewModel.Password = "";
+            ChkRemember.IsChecked = false;
+
+            EventLogService.Instance?.LogInfo("UI", "LoginPage",
+                ErrorCodes.GuestRestrictionApplied,
+                "Guest Password Bypass",
+                "PasswordBox=Disabled, Password=Cleared, RememberMe=Disabled");
+        }
     }
 }

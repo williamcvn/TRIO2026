@@ -311,6 +311,13 @@
                                  LostFocus="InputBox_LostFocus" />
                 </Border>
 
+                <!-- Guest 帳號提示（密碼框 disable 時顯示） -->
+                <TextBlock x:Name="GuestHintText"
+                           FontSize="13" FontStyle="Italic"
+                           Foreground="{StaticResource ErrorRedBrush}"
+                           Margin="6,4,0,0"
+                           Visibility="Collapsed" />
+
                 <CheckBox x:Name="ChkRemember" Content="Remember"
                           Style="{StaticResource TouchCheckBox}"
                           IsChecked="{Binding RememberMe}"

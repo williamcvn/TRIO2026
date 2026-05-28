@@ -109,6 +109,9 @@ public static class EventLogExtensions
             "ServiceModeLogin" => ErrorCodes.ServiceModeLogin,
             "ExitServiceMode" => ErrorCodes.ExitServiceMode,
             "ForcePasswordChange" => ErrorCodes.ForcePasswordChange,
+            "GuestLogin" when success => ErrorCodes.GuestLoginSuccess,
+            "GuestLogin" when !success => ErrorCodes.GuestLoginBlocked,
+            "Navigation" when !success => ErrorCodes.GuestNavigationBlocked,
             _ => null
         };
 

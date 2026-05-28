@@ -175,8 +175,14 @@ public partial class AccountManagementPage : UserControl
         var isSelf = currentUser?.Id == _selectedUser.Id;
         var isService = _selectedUser.RoleLevel == 2;
 
+        // Guest 特殊帳號：僅可檢視，不可修改/刪除
+        var isGuestAccount = string.Equals(_selectedUser.Username, "guest", StringComparison.OrdinalIgnoreCase)
+                          || string.Equals(_selectedUser.Username, "local_operator", StringComparison.OrdinalIgnoreCase);
+
         // 檢視詳細資料
         AddActionButton("📋", loc["AccountMgmt.ViewDetails"], OnViewDetailsClick);
+
+        if (isGuestAccount) return; // Guest/local_operator：僅可檢視
 
         // 停用/啟用
         if (!isSelf && !isService)
@@ -565,8 +571,19 @@ public partial class AccountManagementPage : UserControl
             "ERROR_SELF" => loc["AccountMgmt.ErrorSelf"],
             "ERROR_LAST_ADMIN" => loc["AccountMgmt.ErrorLastAdmin"],
             "ERROR_SERVICE_DELETE" => loc["AccountMgmt.ErrorServiceDelete"],
+            "ERROR_SYSTEM_ACCOUNT" => loc["AccountMgmt.ErrorSystemAccount"],
             _ => error ?? "Unknown error"
         };
+
+        // 系統帳號守衛觸發時額外記錄 log
+        if (error == "ERROR_SYSTEM_ACCOUNT")
+        {
+            EventLogService.Instance?.LogWarning("AccountMgmt", "AccountManagementPage",
+                ErrorCodes.SystemAccountGuard,
+                "System Account Guard Triggered",
+                $"TargetUser={_selectedUser?.Username}, Operator={_sessionService.CurrentUser?.Username}");
+        }
+
         await DialogOverlay.ShowAsync("Error", msg, loc["Common.OK"], OverlayDialogIcon.Error);
     }
 }
